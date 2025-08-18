@@ -3,223 +3,185 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BETRMINT - WEN Monitor</title>
+    <title>WEN MONITOR - Live Tracking</title>
     <link rel="stylesheet" href="web_dashboard.css" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Dancing+Script:wght@700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Share+Tech+Mono:wght@400;700&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
-    <div class="container">
-      <!-- Header Section -->
-      <div class="header-section">
-        <div class="logo-box">
-          <div class="logo-text">BETRMINT</div>
-          <div class="logo-icon">
-            <div class="logo-circle">
-              <span class="logo-b">B</span>
-              <div class="rotating-arrow"></div>
+    <div class="terminal-container">
+      <!-- Terminal Header -->
+      <div class="terminal-header">
+        <div class="terminal-title">WEN MONITOR</div>
+        <div class="terminal-subtitle">LIVE TRACKING</div>
+      </div>
+
+      <!-- Main WEN Display -->
+      <div class="wen-display">
+        <div class="wen-label">WEN COUNT:</div>
+        <div class="wen-number" id="wenCount">0</div>
+        <div class="wen-trend" id="trendIndicator">📈</div>
+      </div>
+
+      <!-- Info Grid -->
+      <div class="info-grid">
+        <!-- Summary Panel -->
+        <div class="info-panel">
+          <div class="panel-header">SUMMARY:</div>
+          <div class="panel-content">
+            <div class="info-line">
+              <span class="label">Messages analyzed:</span>
+              <span class="value" id="messagesAnalyzed">0</span>
             </div>
-            <div class="logo-tagline">Mint, Spin & Win!</div>
+            <div class="info-line">
+              <span class="label">Messages with WEN:</span>
+              <span class="value" id="messagesWithWen">0</span>
+            </div>
+            <div class="info-line">
+              <span class="label">Massage timespan:</span>
+              <span class="value" id="messageTimespan">0 minutes</span>
+            </div>
           </div>
         </div>
-        <div class="action-box">
-          <div class="action-text">GET $BETR</div>
-          <div class="action-arrow"></div>
+
+        <!-- Monitor Status Panel -->
+        <div class="info-panel">
+          <div class="panel-header">MONITOR STATUS:</div>
+          <div class="panel-content">
+            <div class="info-line">
+              <span class="label">Update interval:</span>
+              <span class="value" id="updateInterval">5s</span>
+            </div>
+            <div class="info-line">
+              <span class="label">Updates so far:</span>
+              <span class="value" id="updatesSoFar">0</span>
+            </div>
+            <div class="info-line">
+              <span class="label">Running time:</span>
+              <span class="value" id="runningTime">00:00</span>
+            </div>
+            <div class="info-line">
+              <span class="label">Last update:</span>
+              <span class="value" id="lastUpdate">--:--:-- UTC</span>
+            </div>
+            <div class="info-line" id="todayFilterItem" style="display: none">
+              <span class="label">Filter:</span>
+              <span class="value today-filter">TODAY ONLY</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Timer Section -->
-      <div class="timer-section">
-        <div class="timer-text">
-          NEXT GAME IN <span id="gameTimer">01:38:28</span>!
+      <!-- Recent Messages -->
+      <div class="messages-panel">
+        <div class="panel-header">
+          <span class="flame">🔥</span>
+          RECENT WEN MESSAGES:
+        </div>
+        <div id="recentMessages" class="messages-list">
+          <div class="no-messages">No WEN messages found yet...</div>
         </div>
       </div>
 
-      <!-- Main Content Cards -->
-      <div class="content-cards">
-        <!-- WEN Monitor Card -->
-        <div class="card neon-cyan">
-          <div class="card-icon">📊</div>
-          <div class="card-content">
-            <h3>WEN Monitor Dashboard</h3>
-            <div class="wen-stats">
-              <div class="stat-row">
-                <span class="stat-label">WEN Count:</span>
-                <span class="stat-value" id="wenCount">0</span>
-              </div>
-              <div class="stat-row">
-                <span class="stat-label">Messages Analyzed:</span>
-                <span class="stat-value" id="messagesAnalyzed">0</span>
-              </div>
-              <div class="stat-row">
-                <span class="stat-label">Messages with WEN:</span>
-                <span class="stat-value" id="messagesWithWen">0</span>
-              </div>
-            </div>
+      <!-- Configuration -->
+      <div class="config-panel">
+        <div class="panel-header">CONFIGURATION:</div>
+        <div class="config-grid">
+          <div class="config-row">
+            <label for="apiUrl">API URL:</label>
+            <input
+              type="text"
+              id="apiUrl"
+              placeholder="https://client.farcaster.xyz/v2/..."
+              class="config-input"
+            />
+          </div>
+          <div class="config-row">
+            <label for="bearerToken">Bearer Token:</label>
+            <input
+              type="password"
+              id="bearerToken"
+              placeholder="MK-..."
+              class="config-input"
+            />
+          </div>
+          <div class="config-row">
+            <label for="fetchModeSelect">Fetch Mode:</label>
+            <select id="fetchModeSelect" class="config-select">
+              <option value="single">Single Page</option>
+              <option value="recent">Recent Messages</option>
+              <option value="all">All Messages</option>
+            </select>
+          </div>
+          <div class="config-row">
+            <label for="maxPages">Max Pages:</label>
+            <input
+              type="number"
+              id="maxPages"
+              value="5"
+              min="1"
+              max="100"
+              class="config-input"
+            />
+          </div>
+          <div class="config-row">
+            <label for="targetHours">Target Hours:</label>
+            <input
+              type="number"
+              id="targetHours"
+              value="24"
+              min="1"
+              max="168"
+              class="config-input"
+            />
+          </div>
+          <div class="config-row">
+            <label for="updateIntervalSelect">Update Interval:</label>
+            <select id="updateIntervalSelect" class="config-select">
+              <option value="30">30 seconds</option>
+              <option value="60">1 minute</option>
+              <option value="300" selected>5 minutes</option>
+              <option value="900">15 minutes</option>
+              <option value="3600">1 hour</option>
+            </select>
+          </div>
+          <div class="config-row">
+            <label class="checkbox-label">
+              <input type="checkbox" id="todayFilter" class="config-checkbox" />
+              <span class="checkmark"></span>
+              Today Only Filter
+            </label>
           </div>
         </div>
-
-        <!-- Monitor Status Card -->
-        <div class="card neon-pink">
-          <div class="card-icon">⚙️</div>
-          <div class="card-content">
-            <h3>Monitor Status</h3>
-            <div class="status-stats">
-              <div class="stat-row">
-                <span class="stat-label">Status:</span>
-                <span class="stat-value" id="connectionStatus"
-                  >Disconnected</span
-                >
-              </div>
-              <div class="stat-row">
-                <span class="stat-label">Fetch Mode:</span>
-                <span class="stat-value" id="fetchMode">SINGLE</span>
-              </div>
-              <div class="stat-row">
-                <span class="stat-label">Update Interval:</span>
-                <span class="stat-value" id="updateInterval">5m</span>
-              </div>
-              <div class="stat-row">
-                <span class="stat-label">Updates so far:</span>
-                <span class="stat-value" id="updatesSoFar">0</span>
-              </div>
-              <div class="stat-row">
-                <span class="stat-label">Running Time:</span>
-                <span class="stat-value" id="runningTime">00:00:00</span>
-              </div>
-              <div class="stat-row">
-                <span class="stat-label">Last Update:</span>
-                <span class="stat-value" id="lastUpdate">--:--:-- UTC</span>
-              </div>
-              <div class="stat-row" id="todayFilterItem" style="display: none">
-                <span class="stat-label">Filter:</span>
-                <span class="stat-value today-filter">TODAY ONLY</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Recent Messages Card -->
-        <div class="card neon-cyan">
-          <div class="card-icon">🔥</div>
-          <div class="card-content">
-            <h3>Recent WEN Messages</h3>
-            <div id="recentMessages" class="messages-list">
-              <div class="no-messages">No WEN messages found yet...</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Configuration Card -->
-        <div class="card neon-pink">
-          <div class="card-icon">🔧</div>
-          <div class="card-content">
-            <h3>Configuration</h3>
-            <div class="config-grid">
-              <div class="config-item">
-                <label for="apiUrl">API URL:</label>
-                <input
-                  type="text"
-                  id="apiUrl"
-                  placeholder="https://client.farcaster.xyz/v2/..."
-                  class="config-input"
-                />
-              </div>
-              <div class="config-item">
-                <label for="bearerToken">Bearer Token:</label>
-                <input
-                  type="password"
-                  id="bearerToken"
-                  placeholder="MK-..."
-                  class="config-input"
-                />
-              </div>
-              <div class="config-item">
-                <label for="fetchModeSelect">Fetch Mode:</label>
-                <select id="fetchModeSelect" class="config-select">
-                  <option value="single">Single Page</option>
-                  <option value="recent">Recent Messages</option>
-                  <option value="all">All Messages</option>
-                </select>
-              </div>
-              <div class="config-item">
-                <label for="maxPages">Max Pages:</label>
-                <input
-                  type="number"
-                  id="maxPages"
-                  value="5"
-                  min="1"
-                  max="100"
-                  class="config-input"
-                />
-              </div>
-              <div class="config-item">
-                <label for="targetHours">Target Hours:</label>
-                <input
-                  type="number"
-                  id="targetHours"
-                  value="24"
-                  min="1"
-                  max="168"
-                  class="config-input"
-                />
-              </div>
-              <div class="config-item">
-                <label for="updateIntervalSelect">Update Interval:</label>
-                <select id="updateIntervalSelect" class="config-select">
-                  <option value="30">30 seconds</option>
-                  <option value="60">1 minute</option>
-                  <option value="300" selected>5 minutes</option>
-                  <option value="900">15 minutes</option>
-                  <option value="3600">1 hour</option>
-                </select>
-              </div>
-              <div class="config-item">
-                <label class="checkbox-label">
-                  <input
-                    type="checkbox"
-                    id="todayFilter"
-                    class="config-checkbox"
-                  />
-                  <span class="checkmark"></span>
-                  Today Only Filter
-                </label>
-              </div>
-            </div>
-            <div class="config-actions">
-              <button id="startMonitor" class="btn btn-primary">
-                🚀 Start Monitor
-              </button>
-              <button id="stopMonitor" class="btn btn-danger" disabled>
-                ⏹️ Stop Monitor
-              </button>
-              <button id="testConnection" class="btn btn-secondary">
-                🧪 Test Connection
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-          <button class="action-btn neon-pink">SHARE TO EARN KARMA</button>
-          <button class="action-btn neon-cyan">JOIN GROUP CHAT</button>
+        <div class="button-row">
+          <button id="startMonitor" class="btn btn-start">
+            🚀 Start Monitor
+          </button>
+          <button id="stopMonitor" class="btn btn-stop" disabled>
+            ⏹️ Stop Monitor
+          </button>
+          <button id="testConnection" class="btn btn-test">
+            🧪 Test Connection
+          </button>
         </div>
       </div>
 
       <!-- Status Bar -->
       <div class="status-bar">
         <div class="status-item">
+          <span class="status-label">Status:</span>
+          <span class="status-value" id="connectionStatus">Disconnected</span>
+        </div>
+        <div class="status-item">
           <span class="status-label">Next Update:</span>
           <span class="status-value" id="nextUpdate">--:--:--</span>
         </div>
-        <div class="status-item">
-          <span class="status-label">Updates:</span>
-          <span class="status-value" id="updatesSoFar">0</span>
-        </div>
       </div>
+
+      <!-- Footer -->
+      <div class="footer">Press Ctrl+C to stop monitoring</div>
     </div>
 
     <!-- Loading Overlay -->
@@ -235,7 +197,7 @@
       <div class="modal-content">
         <h3>❌ Error</h3>
         <p id="errorMessage"></p>
-        <button class="btn btn-primary" onclick="closeErrorModal()">OK</button>
+        <button class="btn btn-start" onclick="closeErrorModal()">OK</button>
       </div>
     </div>
 

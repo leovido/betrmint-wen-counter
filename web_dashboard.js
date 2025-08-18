@@ -17,11 +17,9 @@ class WenMonitorDashboard {
     const requiredElements = [
       "wenCount",
       "trendIndicator",
-      "trendIndicator2",
       "messagesAnalyzed",
       "messagesWithWen",
       "messageTimespan",
-      "fetchMode",
       "updateInterval",
       "updatesSoFar",
       "runningTime",
@@ -283,11 +281,9 @@ class WenMonitorDashboard {
       // Safe element updates with null checks
       const wenCount = document.getElementById("wenCount");
       const trendIndicator1 = document.getElementById("trendIndicator");
-      const trendIndicator2 = document.getElementById("trendIndicator2");
 
       if (wenCount) wenCount.textContent = currentCount;
       if (trendIndicator1) trendIndicator1.textContent = trendIndicator;
-      if (trendIndicator2) trendIndicator2.textContent = trendIndicator;
 
       // Update summary stats
       const messagesAnalyzed = document.getElementById("messagesAnalyzed");
@@ -301,13 +297,11 @@ class WenMonitorDashboard {
 
       // Update monitor status
       const config = this.getConfig();
-      const fetchMode = document.getElementById("fetchMode");
       const updateInterval = document.getElementById("updateInterval");
       const updatesSoFar = document.getElementById("updatesSoFar");
       const runningTime = document.getElementById("runningTime");
       const lastUpdate = document.getElementById("lastUpdate");
 
-      if (fetchMode) fetchMode.textContent = config.fetchMode.toUpperCase();
       if (updateInterval)
         updateInterval.textContent = this.formatInterval(config.updateInterval);
       if (updatesSoFar) updatesSoFar.textContent = this.updateCount;
@@ -351,12 +345,15 @@ class WenMonitorDashboard {
       .map(
         (msg, index) => `
             <div class="message-item">
-                <div class="message-header">
-                    <span class="message-username">@${msg.senderUsername}</span>
-                    <span class="message-timestamp">${msg.timestamp_formatted}</span>
+                <div class="message-number">${index + 1}.</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-username">@${
+                          msg.senderUsername
+                        }</span>
+                    </div>
+                    <div class="message-text">"${msg.text}"</div>
                 </div>
-                <div class="message-text">"${msg.text}"</div>
-                <div class="message-wen-count">WEN count: ${msg.wen_count} (${msg.timestamp_formatted})</div>
             </div>
         `
       )
@@ -384,17 +381,16 @@ class WenMonitorDashboard {
   }
 
   getRunningTime() {
-    if (!this.startTime) return "00:00:00";
+    if (!this.startTime) return "00:00";
 
     const now = new Date();
     const diff = now - this.startTime;
-    const hours = Math.floor(diff / 3600000);
-    const minutes = Math.floor((diff % 3600000) / 60000);
+    const minutes = Math.floor(diff / 60000);
     const seconds = Math.floor((diff % 60000) / 1000);
 
-    return `${hours.toString().padStart(2, "0")}:${minutes
+    return `${minutes.toString().padStart(2, "0")}:${seconds
       .toString()
-      .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      .padStart(2, "0")}`;
   }
 
   formatInterval(seconds) {
