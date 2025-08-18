@@ -1,0 +1,9 @@
+{
+  "name": "betrmint-wen-proxy",
+  "version": "1.0.0",
+  "description": "Farcaster API Proxy for WEN Counter Tools",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  }
+}

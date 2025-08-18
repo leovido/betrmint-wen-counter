@@ -1,0 +1,16 @@
+# Vercel
+.vercel
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Local development
+.env
+.env.local

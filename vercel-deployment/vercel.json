@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "functions": {
-    "api/proxy.py": {
-      "maxDuration": 30
+  "builds": [
+    {
+      "src": "api/proxy.py",
+      "use": "@vercel/python"
     }
-  },
+  ],
   "routes": [
     {
       "src": "/health",
@@ -21,5 +22,10 @@
   ],
   "env": {
     "FARCASTER_BASE_URL": "https://client.farcaster.xyz/v2"
+  },
+  "functions": {
+    "api/proxy.py": {
+      "maxDuration": 30
+    }
   }
 }
