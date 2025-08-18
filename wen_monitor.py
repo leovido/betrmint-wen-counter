@@ -16,10 +16,13 @@ from wen_counter import WenCounter
 
 
 class WenMonitor:
-    def __init__(self, url: str, token: str, interval: int = 300):
+    def __init__(self, url: str, token: str, interval: int = 300, fetch_mode: str = 'single', max_pages: int = 5, target_hours: int = 24):
         self.url = url
         self.token = token
         self.interval = interval  # seconds
+        self.fetch_mode = fetch_mode  # 'single', 'recent', or 'all'
+        self.max_pages = max_pages
+        self.target_hours = target_hours
         self.counter = WenCounter()
         self.running = True
         self.last_count = None
@@ -64,7 +67,17 @@ class WenMonitor:
     def _fetch_and_count(self) -> Optional[Dict]:
         """Fetch messages and count WEN variations."""
         try:
-            api_response = self.counter.fetch_messages(self.url, self.token)
+            if self.fetch_mode == 'all':
+                # Remove any existing cursor parameters from the URL
+                base_url = self.url.split('&cursor=')[0].split('?cursor=')[0]
+                api_response = self.counter.fetch_all_messages(base_url, self.token)
+            elif self.fetch_mode == 'recent':
+                # Remove any existing cursor parameters from the URL
+                base_url = self.url.split('&cursor=')[0].split('?cursor=')[0]
+                api_response = self.counter.fetch_recent_messages(base_url, self.token, self.max_pages, self.target_hours)
+            else:  # single mode
+                api_response = self.counter.fetch_messages(self.url, self.token)
+            
             analysis = self.counter.analyze_messages(api_response)
             return analysis
         except Exception as e:
@@ -106,6 +119,10 @@ class WenMonitor:
         
         # Monitor info
         print("⚙️  MONITOR STATUS:")
+        print(f"   Fetch mode:      {self.fetch_mode.upper()}")
+        if self.fetch_mode == 'recent':
+            print(f"   Max pages:       {self.max_pages}")
+            print(f"   Target hours:    {self.target_hours}")
         print(f"   Update interval: {self._format_interval(self.interval)}")
         print(f"   Updates so far:  {update_count}")
         print(f"   Running time:    {uptime_str}")
@@ -181,17 +198,22 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Monitor every 5 minutes (default)
+  # Monitor every 5 minutes (default) - single page only
   python wen_monitor.py -u "https://..." -t "token"
   
-  # Monitor every 1 minute
-  python wen_monitor.py -u "https://..." -t "token" -i 1m
+  # Monitor every 1 minute with recent messages (time-based)
+  python wen_monitor.py -u "https://..." -t "token" -i 1m --fetch-mode recent
   
-  # Monitor every 30 seconds
-  python wen_monitor.py -u "https://..." -t "token" -i 30s
+  # Monitor every 30 seconds with all messages (complete history)
+  python wen_monitor.py -u "https://..." -t "token" -i 30s --fetch-mode all
   
-  # Monitor every 2 hours
-  python wen_monitor.py -u "https://..." -t "token" -i 2h
+  # Monitor every 2 hours with recent messages (custom settings)
+  python wen_monitor.py -u "https://..." -t "token" -i 2h --fetch-mode recent --max-pages 10 --target-hours 48
+
+Fetch Modes:
+  single  = 1 page only (100 messages max) - fastest
+  recent  = Multiple pages until target time reached - balanced
+  all     = All pages until no more cursor - complete history
 
 Interval formats:
   30s  = 30 seconds
@@ -219,6 +241,27 @@ Interval formats:
         help='Update interval (e.g., 30s, 5m, 1h). Default: 5m'
     )
     
+    parser.add_argument(
+        '--fetch-mode',
+        choices=['single', 'recent', 'all'],
+        default='single',
+        help='Fetch mode: single (1 page), recent (time-based), or all (complete history). Default: single'
+    )
+    
+    parser.add_argument(
+        '--max-pages',
+        type=int,
+        default=5,
+        help='Maximum pages to fetch when using recent mode (default: 5)'
+    )
+    
+    parser.add_argument(
+        '--target-hours',
+        type=int,
+        default=24,
+        help='Target hours to look back when using recent mode (default: 24)'
+    )
+    
     args = parser.parse_args()
     
     try:
@@ -230,7 +273,14 @@ Interval formats:
         if interval_seconds > 86400:  # 24 hours
             print("⚠️  Warning: Intervals longer than 24 hours might not be very useful")
         
-        monitor = WenMonitor(args.url, args.token, interval_seconds)
+        monitor = WenMonitor(
+            args.url, 
+            args.token, 
+            interval_seconds,
+            args.fetch_mode,
+            args.max_pages,
+            args.target_hours
+        )
         monitor.run()
         
     except ValueError as e:

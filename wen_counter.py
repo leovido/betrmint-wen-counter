@@ -18,7 +18,8 @@ class WenCounter:
         # Pattern to match "WEN" variations:
         # - Case insensitive "w" followed by one or more "e"s, then "n"
         # - Allows for extended "e"s like "weeeeen"
-        self.wen_pattern = re.compile(r'\bw+e+n+\b', re.IGNORECASE)
+        # - Matches "WEN" as a standalone word or as part of other words like "WENing"
+        self.wen_pattern = re.compile(r'w+e+n+', re.IGNORECASE)
     
     def fetch_messages(self, url: str, bearer_token: str) -> Dict:
         """Fetch messages from the Farcaster API."""
@@ -37,6 +38,170 @@ class WenCounter:
         except json.JSONDecodeError as e:
             print(f"Error parsing JSON response: {e}", file=sys.stderr)
             sys.exit(1)
+    
+    def fetch_recent_messages(self, base_url: str, bearer_token: str, max_pages: int = 5, target_hours: int = 24) -> Dict:
+        """
+        Fetch recent messages by paginating through results until we get messages within target_hours.
+        
+        Args:
+            base_url: Base API URL without cursor parameters
+            bearer_token: Bearer token for authentication
+            max_pages: Maximum number of pages to fetch
+            target_hours: Target hours to look back (default: 24 hours)
+        """
+        all_messages = []
+        current_url = base_url
+        page_count = 0
+        
+        print(f"Fetching messages to get data from the last {target_hours} hours...", file=sys.stderr)
+        
+        while current_url and page_count < max_pages:
+            page_count += 1
+            print(f"Fetching page {page_count}...", file=sys.stderr)
+            print(f"Current URL: {current_url}", file=sys.stderr)
+            
+            try:
+                response = self.fetch_messages(current_url, bearer_token)
+                
+                if 'result' not in response or 'messages' not in response['result']:
+                    print(f"Invalid response format on page {page_count}", file=sys.stderr)
+                    break
+                
+                messages = response['result']['messages']
+                print(f"Page {page_count}: Got {len(messages)} messages", file=sys.stderr)
+                
+                if not messages:
+                    print(f"No more messages found on page {page_count}", file=sys.stderr)
+                    break
+                
+                all_messages.extend(messages)
+                
+                # Check if we have recent enough messages
+                current_time = datetime.now(timezone.utc)
+                target_time = current_time.timestamp() * 1000 - (target_hours * 3600 * 1000)
+                
+                # Check if the oldest message in this batch is recent enough
+                oldest_timestamp = min(msg.get('serverTimestamp', 0) for msg in messages)
+                if oldest_timestamp > target_time:
+                    print(f"Reached recent messages (within {target_hours} hours) on page {page_count}", file=sys.stderr)
+                    break
+                
+                # Get next page cursor
+                print(f"Response keys: {list(response.keys())}", file=sys.stderr)
+                
+                if 'next' in response and 'cursor' in response['next']:
+                    next_cursor = response['next']['cursor']
+                    print(f"Next page cursor: {next_cursor}", file=sys.stderr)
+                    
+                    # Parse the base URL and add the cursor properly
+                    if '?' in base_url:
+                        # Remove any existing cursor parameter first
+                        base_parts = base_url.split('&cursor=')
+                        if len(base_parts) > 1:
+                            base_url = base_parts[0]
+                        current_url = f"{base_url}&cursor={next_cursor}"
+                    else:
+                        current_url = f"{base_url}?cursor={next_cursor}"
+                    
+                    print(f"Next URL: {current_url}", file=sys.stderr)
+                else:
+                    print(f"No next.cursor found in response", file=sys.stderr)
+                    print(f"Available keys: {list(response.keys())}", file=sys.stderr)
+                    if 'next' in response:
+                        print(f"Next object keys: {list(response['next'].keys())}", file=sys.stderr)
+                    break
+                    
+            except Exception as e:
+                print(f"Error fetching page {page_count}: {e}", file=sys.stderr)
+                break
+        
+        print(f"Fetched {len(all_messages)} messages across {page_count} pages", file=sys.stderr)
+        
+        # Sort all messages by timestamp (newest first)
+        all_messages.sort(key=lambda x: x.get('serverTimestamp', 0), reverse=True)
+        
+        # Return in the same format as the original API response
+        return {
+            'result': {
+                'messages': all_messages
+            }
+        }
+    
+    def fetch_all_messages(self, base_url: str, bearer_token: str) -> Dict:
+        """
+        Fetch ALL messages by paginating through results until no more cursor is available.
+        
+        Args:
+            base_url: Base API URL without cursor parameters
+            bearer_token: Bearer token for authentication
+        """
+        all_messages = []
+        current_url = base_url
+        page_count = 0
+        
+        print("Fetching ALL messages until no more cursor is available...", file=sys.stderr)
+        
+        while current_url:
+            page_count += 1
+            print(f"Fetching page {page_count}...", file=sys.stderr)
+            print(f"Current URL: {current_url}", file=sys.stderr)
+            
+            try:
+                response = self.fetch_messages(current_url, bearer_token)
+                
+                if 'result' not in response or 'messages' not in response['result']:
+                    print(f"Invalid response format on page {page_count}", file=sys.stderr)
+                    break
+                
+                messages = response['result']['messages']
+                print(f"Page {page_count}: Got {len(messages)} messages", file=sys.stderr)
+                
+                if not messages:
+                    print(f"No more messages found on page {page_count}", file=sys.stderr)
+                    break
+                
+                all_messages.extend(messages)
+                
+                # Get next page cursor
+                print(f"Response keys: {list(response.keys())}", file=sys.stderr)
+                
+                if 'next' in response and 'cursor' in response['next']:
+                    next_cursor = response['next']['cursor']
+                    print(f"Next page cursor: {next_cursor}", file=sys.stderr)
+                    
+                    # Parse the base URL and add the cursor properly
+                    if '?' in base_url:
+                        # Remove any existing cursor parameter first
+                        base_parts = base_url.split('&cursor=')
+                        if len(base_parts) > 1:
+                            base_url = base_parts[0]
+                        current_url = f"{base_url}&cursor={next_cursor}"
+                    else:
+                        current_url = f"{base_url}?cursor={next_cursor}"
+                    
+                    print(f"Next URL: {current_url}", file=sys.stderr)
+                else:
+                    print(f"No next.cursor found - reached the end of all messages", file=sys.stderr)
+                    print(f"Available keys: {list(response.keys())}", file=sys.stderr)
+                    if 'next' in response:
+                        print(f"Next object keys: {list(response['next'].keys())}", file=sys.stderr)
+                    break
+                    
+            except Exception as e:
+                print(f"Error fetching page {page_count}: {e}", file=sys.stderr)
+                break
+        
+        print(f"Fetched {len(all_messages)} messages across {page_count} pages (complete conversation history)", file=sys.stderr)
+        
+        # Sort all messages by timestamp (newest first)
+        all_messages.sort(key=lambda x: x.get('serverTimestamp', 0), reverse=True)
+        
+        # Return in the same format as the original API response
+        return {
+            'result': {
+                'messages': all_messages
+            }
+        }
     
     def count_wen_in_text(self, text: str) -> Tuple[int, List[str]]:
         """Count WEN variations in a text and return matches."""
@@ -195,6 +360,8 @@ Examples:
   python wen_counter.py --url "https://client.farcaster.xyz/v2/..." --token "MK-..."
   python wen_counter.py -u "https://..." -t "MK-..." --verbose
   python wen_counter.py --url "https://..." --token "MK-..." --json
+  python wen_counter.py -u "https://..." -t "MK-..." --recent --max-pages 10 --target-hours 48
+  python wen_counter.py -u "https://..." -t "MK-..." --all
         """
     )
     
@@ -222,14 +389,51 @@ Examples:
         help='Output results in JSON format'
     )
     
+    parser.add_argument(
+        '--recent',
+        action='store_true',
+        help='Fetch recent messages using pagination (recommended for up-to-date data)'
+    )
+    
+    parser.add_argument(
+        '--max-pages',
+        type=int,
+        default=5,
+        help='Maximum number of pages to fetch when using --recent (default: 5)'
+    )
+    
+    parser.add_argument(
+        '--target-hours',
+        type=int,
+        default=24,
+        help='Target hours to look back when using --recent (default: 24)'
+    )
+    
+    parser.add_argument(
+        '--all',
+        action='store_true',
+        help='Fetch ALL messages until no more cursor is available (complete conversation history)'
+    )
+    
     args = parser.parse_args()
     
     # Initialize the counter
     counter = WenCounter()
     
     # Fetch and analyze messages
-    print("Fetching messages...", file=sys.stderr)
-    api_response = counter.fetch_messages(args.url, args.token)
+    if args.all:
+        print("Fetching ALL messages using pagination...", file=sys.stderr)
+        # Remove any existing cursor parameters from the URL
+        base_url = args.url.split('&cursor=')[0].split('?cursor=')[0]
+        api_response = counter.fetch_all_messages(base_url, args.token)
+    elif args.recent:
+        print("Fetching recent messages using pagination...", file=sys.stderr)
+        # Remove any existing cursor parameters from the URL
+        base_url = args.url.split('&cursor=')[0].split('?cursor=')[0]
+        api_response = counter.fetch_recent_messages(base_url, args.token, args.max_pages, args.target_hours)
+    else:
+        print("Fetching messages...", file=sys.stderr)
+        api_response = counter.fetch_messages(args.url, args.token)
     
     print("Analyzing messages for WEN variations...", file=sys.stderr)
     analysis = counter.analyze_messages(api_response)
