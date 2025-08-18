@@ -16,13 +16,14 @@ from wen_counter import WenCounter
 
 
 class WenMonitor:
-    def __init__(self, url: str, token: str, interval: int = 300, fetch_mode: str = 'single', max_pages: int = 5, target_hours: int = 24):
+    def __init__(self, url: str, token: str, interval: int = 300, fetch_mode: str = 'single', max_pages: int = 5, target_hours: int = 24, filter_today: bool = False):
         self.url = url
         self.token = token
         self.interval = interval  # seconds
         self.fetch_mode = fetch_mode  # 'single', 'recent', or 'all'
         self.max_pages = max_pages
         self.target_hours = target_hours
+        self.filter_today = filter_today
         self.counter = WenCounter()
         self.running = True
         self.last_count = None
@@ -36,6 +37,13 @@ class WenMonitor:
         """Handle shutdown signals gracefully."""
         print("\n📡 Monitor stopping...")
         self.running = False
+        
+        # Force exit if we get a second signal (Ctrl+C twice)
+        if hasattr(self, '_shutdown_requested'):
+            print("🔄 Force stopping...")
+            sys.exit(0)
+        
+        self._shutdown_requested = True
     
     def _clear_screen(self):
         """Clear the terminal screen."""
@@ -74,11 +82,16 @@ class WenMonitor:
             elif self.fetch_mode == 'recent':
                 # Remove any existing cursor parameters from the URL
                 base_url = self.url.split('&cursor=')[0].split('?cursor=')[0]
-                api_response = self.counter.fetch_recent_messages(base_url, self.token, self.max_pages, self.target_hours)
+                api_response = self.counter.fetch_recent_messages(base_url, self.token, self.max_pages, self.target_hours, self.filter_today)
             else:  # single mode
                 api_response = self.counter.fetch_messages(self.url, self.token)
             
-            analysis = self.counter.analyze_messages(api_response)
+            # Apply today filter if requested
+            if self.filter_today:
+                analysis = self.counter.analyze_messages(api_response, filter_today=True)
+            else:
+                analysis = self.counter.analyze_messages(api_response)
+            
             return analysis
         except Exception as e:
             print(f"❌ Error fetching data: {e}")
@@ -123,6 +136,8 @@ class WenMonitor:
         if self.fetch_mode == 'recent':
             print(f"   Max pages:       {self.max_pages}")
             print(f"   Target hours:    {self.target_hours}")
+        if self.filter_today:
+            print(f"   Filter:          TODAY ONLY")
         print(f"   Update interval: {self._format_interval(self.interval)}")
         print(f"   Updates so far:  {update_count}")
         print(f"   Running time:    {uptime_str}")
@@ -132,8 +147,8 @@ class WenMonitor:
         if analysis['message_details']:
             print()
             print("🔥 RECENT WEN MESSAGES:")
-            # Show up to 3 most recent
-            for i, msg in enumerate(analysis['message_details'][:3], 1):
+            # Show up to 5 most recent
+            for i, msg in enumerate(analysis['message_details'][:5], 1):
                 print(f"   {i}. @{msg['senderUsername']}: {', '.join(msg['wen_matches'])}")
                 if len(msg['text']) > 50:
                     text_preview = msg['text'][:47] + "..."
@@ -164,13 +179,24 @@ class WenMonitor:
                 self._display_status(analysis, update_count)
             else:
                 print("⚠️  Failed to fetch data, retrying in 30 seconds...")
-                time.sleep(30)
+                # Check for shutdown every 5 seconds during retry
+                for _ in range(6):  # 30 seconds / 5 seconds = 6 checks
+                    if not self.running:
+                        break
+                    time.sleep(5)
                 continue
             
-            # Wait for next update
+            # Wait for next update with frequent shutdown checks
             if self.running:  # Check if we're still supposed to be running
                 try:
-                    time.sleep(self.interval)
+                    # Check for shutdown every 5 seconds instead of waiting full interval
+                    for _ in range(self.interval // 5):
+                        if not self.running:
+                            break
+                        time.sleep(5)
+                    # Sleep remaining time
+                    if self.running:
+                        time.sleep(self.interval % 5)
                 except KeyboardInterrupt:
                     break
         
@@ -209,6 +235,11 @@ Examples:
   
   # Monitor every 2 hours with recent messages (custom settings)
   python wen_monitor.py -u "https://..." -t "token" -i 2h --fetch-mode recent --max-pages 10 --target-hours 48
+  
+  # TODAY only filters
+  python wen_monitor.py -u "https://..." -t "token" --today
+  python wen_monitor.py -u "https://..." -t "token" --fetch-mode recent --today
+  python wen_monitor.py -u "https://..." -t "token" --fetch-mode all --today
 
 Fetch Modes:
   single  = 1 page only (100 messages max) - fastest
@@ -220,6 +251,10 @@ Interval formats:
   5m   = 5 minutes  
   2h   = 2 hours
   300  = 300 minutes (backward compatibility)
+
+Shutdown:
+  Press Ctrl+C once for graceful shutdown
+  Press Ctrl+C twice for immediate exit
         """
     )
     
@@ -262,6 +297,19 @@ Interval formats:
         help='Target hours to look back when using recent mode (default: 24)'
     )
     
+    parser.add_argument(
+        '--today',
+        action='store_true',
+        help='Filter messages to TODAY only (current calendar day, midnight to midnight UTC)'
+    )
+    
+    parser.add_argument(
+        '--timeout',
+        type=int,
+        default=60,
+        help='API request timeout in seconds (default: 60)'
+    )
+    
     args = parser.parse_args()
     
     try:
@@ -273,13 +321,30 @@ Interval formats:
         if interval_seconds > 86400:  # 24 hours
             print("⚠️  Warning: Intervals longer than 24 hours might not be very useful")
         
+        # Auto-adjust settings when using --today to ensure we can reach today's messages
+        adjusted_fetch_mode = args.fetch_mode
+        adjusted_max_pages = args.max_pages
+        
+        if args.today:
+            if args.fetch_mode == 'single':
+                # Switch from single to recent mode for today filter
+                adjusted_fetch_mode = 'recent'
+                adjusted_max_pages = max(args.max_pages, 20)
+                print(f"📅 Auto-switched to recent mode with {adjusted_max_pages} pages for today filter", file=sys.stderr)
+            elif args.fetch_mode == 'recent':
+                # Increase max_pages for recent mode with today filter
+                adjusted_max_pages = max(args.max_pages, 20)
+                print(f"📅 Auto-adjusted max_pages to {adjusted_max_pages} for today filter", file=sys.stderr)
+            # If fetch_mode is 'all', no adjustments needed
+        
         monitor = WenMonitor(
             args.url, 
             args.token, 
             interval_seconds,
-            args.fetch_mode,
-            args.max_pages,
-            args.target_hours
+            adjusted_fetch_mode,
+            adjusted_max_pages,
+            args.target_hours,
+            args.today
         )
         monitor.run()
         
