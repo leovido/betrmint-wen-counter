@@ -51,6 +51,9 @@ class WenMonitor {
     this.spinWheelBtn = document.getElementById("spinWheel");
     this.wheelStatus = document.getElementById("wheelStatus");
 
+    // Confetti container
+    this.confettiContainer = document.getElementById("confetti-container");
+
     // Messages container
     this.recentMessagesEl = document.getElementById("recentMessages");
   }
@@ -572,22 +575,118 @@ class WenMonitor {
     uniqueUsers.forEach((msg, index) => {
       const segment = document.createElement("div");
       segment.className = "wheel-segment";
-      segment.style.transform = `rotate(${index * segmentAngle}deg)`;
 
-      // Truncate username if too long
-      const displayName =
-        msg.senderUsername.length > 8
-          ? msg.senderUsername.substring(0, 8) + "..."
-          : msg.senderUsername;
+      // Calculate segment angles
+      const startAngle = index * segmentAngle;
+      const endAngle = (index + 1) * segmentAngle;
 
-      segment.textContent = `@${displayName}`;
-      segment.title = `@${msg.senderUsername}`;
+      // Create pie slice using CSS clip-path
+      const startRadians = (startAngle * Math.PI) / 180;
+      const endRadians = (endAngle * Math.PI) / 180;
 
+      const x1 = 50 + 50 * Math.cos(startRadians);
+      const y1 = 50 + 50 * Math.sin(startRadians);
+      const x2 = 50 + 50 * Math.cos(endRadians);
+      const y2 = 50 + 50 * Math.sin(endRadians);
+
+      // Create a pie slice path
+      const largeArcFlag = segmentAngle > 180 ? 1 : 0;
+      const path = `M 50 50 L ${x1} ${y1} A 50 50 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
+
+      // Create SVG path element
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("width", "100%");
+      svg.setAttribute("height", "100%");
+      svg.setAttribute("viewBox", "0 0 100 100");
+
+      const pathElement = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "path"
+      );
+      pathElement.setAttribute("d", path);
+      pathElement.setAttribute("fill", this.getSegmentColor(index));
+
+      svg.appendChild(pathElement);
+      segment.appendChild(svg);
+
+      // Add username text
+      const text = document.createElement("div");
+      text.className = "segment-text";
+
+      // Show more of the username and handle long names better
+      let displayName = msg.senderUsername;
+      if (displayName.length > 10) {
+        displayName = displayName.substring(0, 10) + "...";
+      }
+
+      text.textContent = `@${displayName}`;
+      text.title = `@${msg.senderUsername}`;
+
+      // Position text in the middle of the segment with better positioning
+      const midAngle = startAngle + segmentAngle / 2;
+      const midRadians = (midAngle * Math.PI) / 180;
+
+      // Position text closer to center for better fit
+      const textRadius = 35; // Closer to center than before
+      const textX = 50 + textRadius * Math.cos(midRadians);
+      const textY = 50 + textRadius * Math.sin(midRadians);
+
+      text.style.position = "absolute";
+      text.style.left = `${textX}%`;
+      text.style.top = `${textY}%`;
+      text.style.transform = "translate(-50%, -50%)";
+      text.style.color = "white";
+      text.style.fontSize = "9px";
+      text.style.fontWeight = "bold";
+      text.style.textShadow = "1px 1px 2px rgba(0, 0, 0, 0.8)";
+      text.style.pointerEvents = "none";
+      text.style.maxWidth = "80px";
+      text.style.textAlign = "center";
+      text.style.lineHeight = "1.2";
+
+      segment.appendChild(text);
       this.wheel.appendChild(segment);
     });
 
     this.wheelStatus.textContent = `Wheel ready with ${segmentCount} unique participants!`;
     this.spinWheelBtn.disabled = false;
+  }
+
+  getSegmentColor(index) {
+    const colors = ["var(--pink)", "var(--cyan)"];
+    return colors[index % colors.length];
+  }
+
+  createConfetti() {
+    // Clear any existing confetti
+    this.confettiContainer.innerHTML = "";
+
+    // Create 50 confetti pieces
+    for (let i = 0; i < 50; i++) {
+      const confetti = document.createElement("div");
+      confetti.className = "confetti-piece";
+
+      // Random starting position
+      confetti.style.left = Math.random() * 100 + "%";
+
+      // Random delay for staggered effect
+      confetti.style.animationDelay = Math.random() * 2 + "s";
+
+      // Random size variation
+      const size = 8 + Math.random() * 8;
+      confetti.style.width = size + "px";
+      confetti.style.height = size + "px";
+
+      // Random rotation
+      confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+      this.confettiContainer.appendChild(confetti);
+    }
+
+    // Remove confetti after animation completes
+    setTimeout(() => {
+      this.confettiContainer.innerHTML = "";
+    }, 5000);
   }
 
   spinWheel() {
@@ -698,6 +797,9 @@ class WenMonitor {
     setTimeout(() => {
       this.winnerCard.style.animation = "";
     }, 2000);
+
+    // Trigger confetti celebration
+    this.createConfetti();
   }
 
   highlightWinnerInMessages(winnerIndex) {
