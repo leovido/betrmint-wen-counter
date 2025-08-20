@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WEN MONITOR – LIVE TRACKING</title>
+    <link rel="stylesheet" href="neon-tracking.css" />
+  </head>
+  <body>
+    <div class="terminal-frame">
+      <!-- Top siren row -->
+      <div class="siren-row" aria-hidden="true">
+        <!-- 16 sirens -->
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+      </div>
+
+      <div class="title">WEN MONITOR – LIVE TRACKING</div>
+
+      <!-- Bottom siren row (mirrored) -->
+      <div class="siren-row" aria-hidden="true">
+        <!-- reuse same siren 16 times -->
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+        <svg
+          class="siren"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 11a7 7 0 0 1 14 0v5H5v-5Z"
+            fill="currentColor"
+            opacity="0.2"
+          />
+          <path d="M3 16h18" />
+          <path d="M8 21h8" />
+          <path d="M12 2v2M4 6l1.5 1.5M20 6l-1.5 1.5" />
+        </svg>
+      </div>
+
+      <div class="grid">
+        <!-- Left Column: WEN COUNT + SUMMARY -->
+        <div class="card">
+          <div class="section-title">Overview</div>
+          <div class="wen-count" aria-live="polite">
+            <svg
+              class="wen-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"
+                fill="currentColor"
+                opacity="0.18"
+              />
+              <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" />
+            </svg>
+            <span
+              >WEN COUNT:
+              <span
+                id="wenCount"
+                style="
+                  color: var(--pink);
+                  text-shadow: 0 0 10px rgba(255, 43, 214, 0.7);
+                "
+                >0</span
+              ></span
+            >
+          </div>
+
+          <div class="section-title" style="margin-top: 18px">Summary</div>
+          <div class="kpis">
+            <div class="kpi">
+              <div class="label">Messages analyzed</div>
+              <div class="value" id="messagesAnalyzed">0</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Messages with WEN</div>
+              <div class="value" id="messagesWithWen">0</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Message timespan</div>
+              <div class="value" id="messageTimespan">0m</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Monitor Status -->
+        <div class="card">
+          <div class="section-title">Monitor Status</div>
+          <div class="status">
+            <div class="row">
+              <div class="key">Fetch mode</div>
+              <div class="val" id="fetchMode">--</div>
+            </div>
+            <div class="row">
+              <div class="key">Filter</div>
+              <div class="val" id="filterStatus">--</div>
+            </div>
+            <div class="row">
+              <div class="key">Update interval</div>
+              <div class="val" id="updateInterval">--</div>
+            </div>
+            <div class="row">
+              <div class="key">Updates so far</div>
+              <div class="val" id="updatesCount">0</div>
+            </div>
+            <div class="row">
+              <div class="key">Running time</div>
+              <div class="val" id="runningTime">00:00:00</div>
+            </div>
+            <div class="row">
+              <div class="key">Last update</div>
+              <div class="val" id="lastUpdate">--:--:--</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Messages -->
+      <div class="card" style="margin-top: 18px">
+        <div class="section-title">Recent WEN Messages</div>
+        <div id="recentMessages" class="recent">
+          <div class="msg">
+            <div class="handle">No messages yet</div>
+            <div class="content">Start monitoring to see WEN messages...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Configuration Panel -->
+      <div class="config-panel">
+        <div class="section-title">Configuration</div>
+        <div class="config-grid">
+          <div class="config-row">
+            <label for="apiUrl">API URL:</label>
+            <input
+              type="text"
+              id="apiUrl"
+              class="config-input"
+              placeholder="https://client.farcaster.xyz/v2/..."
+            />
+          </div>
+          <div class="config-row">
+            <label for="apiToken">API Token:</label>
+            <input
+              type="password"
+              id="apiToken"
+              class="config-input"
+              placeholder="Enter your API token"
+            />
+          </div>
+          <div class="config-row">
+            <label for="fetchMode">Fetch Mode:</label>
+            <select id="fetchModeSelect" class="config-input">
+              <option value="single">Single</option>
+              <option value="recent">Recent</option>
+              <option value="all">All</option>
+            </select>
+          </div>
+          <div class="config-row">
+            <label for="maxPages">Max Pages:</label>
+            <input
+              type="number"
+              id="maxPages"
+              class="config-input"
+              value="5"
+              min="1"
+              max="100"
+            />
+          </div>
+          <div class="config-row">
+            <label for="targetHours">Target Hours:</label>
+            <input
+              type="number"
+              id="targetHours"
+              class="config-input"
+              value="24"
+              min="1"
+              max="168"
+            />
+          </div>
+          <div class="config-row">
+            <label for="updateInterval">Update Interval (seconds):</label>
+            <input
+              type="number"
+              id="updateIntervalInput"
+              class="config-input"
+              value="300"
+              min="30"
+              max="3600"
+            />
+          </div>
+        </div>
+        <div class="button-row">
+          <button id="startMonitor" class="btn btn-start">
+            🚀 Start Monitor
+          </button>
+          <button id="stopMonitor" class="btn btn-stop" disabled>
+            ⏹️ Stop Monitor
+          </button>
+          <button id="testConnection" class="btn btn-test">
+            🧪 Test Connection
+          </button>
+        </div>
+      </div>
+
+      <div class="footer">
+        Press <span style="color: var(--pink)">Ctrl</span>+<span
+          style="color: var(--pink)"
+          >C</span
+        >
+        to stop monitoring.
+      </div>
+    </div>
+
+    <script src="neon-tracking.js"></script>
+  </body>
+</html>
