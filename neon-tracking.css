@@ -234,25 +234,40 @@ body {
 }
 
 .msg {
-  display: grid;
-  grid-template-columns: 190px 1fr;
-  gap: 12px;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   padding: 12px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px dashed rgba(150, 160, 194, 0.25);
 }
 
+.msg-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
 .handle {
   color: var(--cyan);
   text-shadow: 0 0 10px rgba(0, 234, 255, 0.6);
   font-weight: 700;
+  font-size: 14px;
+}
+
+.timestamp {
+  color: var(--muted);
+  font-size: 11px;
+  font-family: "JetBrains Mono", monospace;
+  opacity: 0.8;
 }
 
 .content {
   color: var(--yellow);
   text-shadow: 0 0 10px rgba(255, 230, 0, 0.45);
+  line-height: 1.4;
 }
 
 .footer {

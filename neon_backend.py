@@ -83,10 +83,28 @@ def get_wen_data():
         # Process message details
         if analysis.get('message_details'):
             for msg in analysis['message_details']:
+                # Handle timestamp conversion - Farcaster uses milliseconds
+                timestamp = msg.get('timestamp')
+                if timestamp:
+                    # Convert milliseconds to ISO string if it's a number
+                    if isinstance(timestamp, (int, float)):
+                        from datetime import datetime, timezone
+                        timestamp = datetime.fromtimestamp(timestamp / 1000, tz=timezone.utc).isoformat()
+                    elif isinstance(timestamp, str):
+                        # If it's already a string, try to parse and reformat
+                        try:
+                            # Try to parse as milliseconds first
+                            if timestamp.isdigit():
+                                ts_int = int(timestamp)
+                                timestamp = datetime.fromtimestamp(ts_int / 1000, tz=timezone.utc).isoformat()
+                        except:
+                            pass  # Keep original if parsing fails
+                
                 response_data['message_details'].append({
                     'senderUsername': msg.get('senderUsername', 'Unknown'),
                     'text': msg.get('text', ''),
-                    'wen_matches': msg.get('wen_matches', [])
+                    'wen_matches': msg.get('wen_matches', []),
+                    'timestamp': timestamp
                 })
 
         return jsonify(response_data)

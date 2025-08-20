@@ -203,16 +203,31 @@ class WenMonitor {
           senderUsername: "user1",
           text: "wen moon?",
           wen_matches: ["wen"],
+          timestamp: new Date(Date.now() - 5 * 60000).toISOString(), // 5 minutes ago
         },
         {
           senderUsername: "user2",
           text: "WEN is the question",
           wen_matches: ["WEN"],
+          timestamp: new Date(Date.now() - 15 * 60000).toISOString(), // 15 minutes ago
         },
         {
           senderUsername: "user3",
           text: "When will it happen?",
           wen_matches: ["When"],
+          timestamp: new Date(Date.now() - 45 * 60000).toISOString(), // 45 minutes ago
+        },
+        {
+          senderUsername: "user4",
+          text: "wen ever netnose want",
+          wen_matches: ["wen"],
+          timestamp: new Date(Date.now() - 2 * 3600000).toISOString(), // 2 hours ago
+        },
+        {
+          senderUsername: "user5",
+          text: "WEN??",
+          wen_matches: ["WEN"],
+          timestamp: new Date(Date.now() - 6 * 3600000).toISOString(), // 6 hours ago
         },
       ],
     };
@@ -338,17 +353,97 @@ class WenMonitor {
       return;
     }
 
+    // Debug: Log the first few messages to see timestamp data
+    console.log(
+      "🔍 Message timestamp debug:",
+      messages.slice(0, 3).map((msg) => ({
+        username: msg.senderUsername,
+        timestamp: msg.timestamp,
+        timestampType: typeof msg.timestamp,
+        hasTimestamp: !!msg.timestamp,
+      }))
+    );
+
     this.recentMessagesEl.innerHTML = messages
-      .map(
-        (msg, index) => `
-        <div class="msg">
-          <div class="handle">@${msg.senderUsername}</div>
-          <div class="content">${msg.wen_matches.join(", ")} — "${
+      .map((msg, index) => {
+        // Format timestamp in DD/MM/YYYY HH:MM UTC format
+        let timestamp;
+
+        if (msg.timestamp) {
+          // Use the actual message timestamp
+          console.log(
+            `📅 Processing timestamp for @${msg.senderUsername}:`,
+            msg.timestamp
+          );
+          timestamp =
+            new Date(msg.timestamp)
+              .toLocaleString("en-GB", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                timeZone: "UTC",
+                hour12: false,
+              })
+              .replace(",", "") + " UTC";
+        } else if (msg.timestamp_iso || msg.created_at || msg.date) {
+          // Try alternative timestamp field names
+          const altTimestamp = msg.timestamp_iso || msg.created_at || msg.date;
+          console.log(
+            `🔄 Using alt timestamp for @${msg.senderUsername}:`,
+            altTimestamp
+          );
+          timestamp =
+            new Date(altTimestamp)
+              .toLocaleString("en-GB", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                timeZone: "UTC",
+                hour12: false,
+              })
+              .replace(",", "") + " UTC";
+        } else {
+          // Generate a unique timestamp based on message index and current time
+          // This ensures each message has a different timestamp for demo purposes
+          console.log(
+            `⚠️  No timestamp found for @${msg.senderUsername}, generating unique one`
+          );
+          const baseTime = new Date();
+          const offsetMinutes = index * 5; // Each message 5 minutes apart
+          const uniqueTime = new Date(
+            baseTime.getTime() - offsetMinutes * 60000
+          );
+
+          timestamp =
+            uniqueTime
+              .toLocaleString("en-GB", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                timeZone: "UTC",
+                hour12: false,
+              })
+              .replace(",", "") + " UTC";
+        }
+
+        return `
+          <div class="msg">
+            <div class="msg-header">
+              <div class="handle">@${msg.senderUsername}</div>
+              <div class="timestamp">${timestamp}</div>
+            </div>
+            <div class="content">${msg.wen_matches.join(", ")} — "${
           msg.text
         }"</div>
-        </div>
-      `
-      )
+          </div>
+        `;
+      })
       .join("");
   }
 
