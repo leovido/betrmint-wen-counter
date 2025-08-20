@@ -46,6 +46,11 @@ class WenMonitor {
     this.winnerCard = document.getElementById("winnerCard");
     this.winnerMessage = document.getElementById("winnerMessage");
 
+    // Wheel elements
+    this.wheel = document.getElementById("wheel");
+    this.spinWheelBtn = document.getElementById("spinWheel");
+    this.wheelStatus = document.getElementById("wheelStatus");
+
     // Messages container
     this.recentMessagesEl = document.getElementById("recentMessages");
   }
@@ -84,6 +89,7 @@ class WenMonitor {
     this.randomWinnerBtn.addEventListener("click", () =>
       this.selectRandomWinner()
     );
+    this.spinWheelBtn.addEventListener("click", () => this.spinWheel());
 
     // Save config on input changes
     [
@@ -330,6 +336,9 @@ class WenMonitor {
     // Update recent messages
     this.updateRecentMessages(data.message_details);
 
+    // Generate wheel with new participants
+    this.generateWheel();
+
     // Update last update time
     this.lastUpdateEl.textContent = new Date().toLocaleTimeString("en-US", {
       hour12: false,
@@ -528,6 +537,124 @@ class WenMonitor {
 
     // Show success message
     console.log(`🎉 Random winner selected: @${winner.senderUsername}`);
+  }
+
+  generateWheel() {
+    if (
+      !this.lastData ||
+      !this.lastData.message_details ||
+      this.lastData.message_details.length === 0
+    ) {
+      this.wheelStatus.textContent = "No messages available";
+      this.spinWheelBtn.disabled = true;
+      return;
+    }
+
+    // Clear existing wheel
+    const existingSegments = this.wheel.querySelectorAll(".wheel-segment");
+    existingSegments.forEach((segment) => segment.remove());
+
+    // Get unique usernames only
+    const uniqueUsers = [];
+    const seenUsernames = new Set();
+
+    this.lastData.message_details.forEach((msg) => {
+      if (!seenUsernames.has(msg.senderUsername)) {
+        seenUsernames.add(msg.senderUsername);
+        uniqueUsers.push(msg);
+      }
+    });
+
+    const segmentCount = uniqueUsers.length;
+    const segmentAngle = 360 / segmentCount;
+
+    // Create wheel segments with unique users
+    uniqueUsers.forEach((msg, index) => {
+      const segment = document.createElement("div");
+      segment.className = "wheel-segment";
+      segment.style.transform = `rotate(${index * segmentAngle}deg)`;
+
+      // Truncate username if too long
+      const displayName =
+        msg.senderUsername.length > 8
+          ? msg.senderUsername.substring(0, 8) + "..."
+          : msg.senderUsername;
+
+      segment.textContent = `@${displayName}`;
+      segment.title = `@${msg.senderUsername}`;
+
+      this.wheel.appendChild(segment);
+    });
+
+    this.wheelStatus.textContent = `Wheel ready with ${segmentCount} unique participants!`;
+    this.spinWheelBtn.disabled = false;
+  }
+
+  spinWheel() {
+    if (
+      !this.lastData ||
+      !this.lastData.message_details ||
+      this.lastData.message_details.length === 0
+    ) {
+      alert(
+        "No messages available to spin the wheel. Please start monitoring first."
+      );
+      return;
+    }
+
+    // Disable spin button during spin
+    this.spinWheelBtn.disabled = true;
+    this.wheelStatus.textContent = "Spinning...";
+
+    // Get unique users (same logic as generateWheel)
+    const uniqueUsers = [];
+    const seenUsernames = new Set();
+
+    this.lastData.message_details.forEach((msg) => {
+      if (!seenUsernames.has(msg.senderUsername)) {
+        seenUsernames.add(msg.senderUsername);
+        uniqueUsers.push(msg);
+      }
+    });
+
+    // Calculate random rotation (multiple full rotations + random segment)
+    const segmentCount = uniqueUsers.length;
+    const segmentAngle = 360 / segmentCount;
+    const randomSegment = Math.floor(Math.random() * segmentCount);
+    const fullRotations = 5 + Math.random() * 5; // 5-10 full rotations
+    const finalRotation = fullRotations * 360 + randomSegment * segmentAngle;
+
+    // Set CSS custom property for animation
+    this.wheel.style.setProperty("--final-rotation", `${finalRotation}deg`);
+
+    // Add spinning class and animate
+    this.wheel.classList.add("spinning");
+    this.wheel.style.transform = `rotate(${finalRotation}deg)`;
+
+    // After animation completes, select the winner
+    setTimeout(() => {
+      this.wheel.classList.remove("spinning");
+
+      // Get the winner based on final rotation
+      const winner = uniqueUsers[randomSegment];
+
+      // Display the winner
+      this.displayWinner(winner);
+
+      // Highlight the winner in the recent messages
+      this.highlightWinnerInMessages(randomSegment);
+
+      // Update status
+      this.wheelStatus.textContent = `Winner: @${winner.senderUsername}!`;
+
+      // Re-enable spin button after a delay
+      setTimeout(() => {
+        this.spinWheelBtn.disabled = false;
+        this.wheelStatus.textContent = "Ready to spin again!";
+      }, 2000);
+
+      console.log(`🎉 Wheel winner: @${winner.senderUsername}`);
+    }, 4000); // Match the CSS transition duration
   }
 
   displayWinner(winner) {

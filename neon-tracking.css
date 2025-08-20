@@ -334,6 +334,140 @@ body {
   }
 }
 
+/* Wheel of Fortune Styling */
+.wheel-card {
+  border: 2px solid var(--cyan);
+  box-shadow: 0 0 20px rgba(0, 234, 255, 0.3);
+  background: rgba(0, 234, 255, 0.05);
+}
+
+.wheel-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+}
+
+.wheel {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  border: 4px solid var(--cyan);
+  box-shadow: 0 0 30px rgba(0, 234, 255, 0.4);
+  transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+  background: var(--bg);
+}
+
+.wheel.spinning {
+  animation: wheelSpin 4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.wheel-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  background: var(--bg);
+  border: 3px solid var(--cyan);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(0, 234, 255, 0.6);
+}
+
+.wheel-pointer {
+  color: var(--cyan);
+  font-size: 20px;
+  font-weight: bold;
+  text-shadow: 0 0 10px rgba(0, 234, 255, 0.8);
+}
+
+.wheel-segment {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  transform-origin: 100% 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--white);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+  text-align: center;
+  padding: 0 10px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Wheel segment colors - only 4 colors */
+.wheel-segment:nth-child(4n + 1) {
+  background: var(--pink);
+}
+
+.wheel-segment:nth-child(4n + 2) {
+  background: var(--cyan);
+}
+
+.wheel-segment:nth-child(4n + 3) {
+  background: var(--yellow);
+}
+
+.wheel-segment:nth-child(4n + 4) {
+  background: var(--red);
+}
+
+.wheel-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.btn-spin {
+  background: linear-gradient(135deg, var(--cyan), var(--pink));
+  color: white;
+  border: 1px solid var(--cyan);
+  box-shadow: 0 0 15px rgba(0, 234, 255, 0.4);
+  transition: all 0.3s ease;
+  font-size: 14px;
+  padding: 12px 24px;
+}
+
+.btn-spin:hover:not(:disabled) {
+  box-shadow: 0 0 25px rgba(0, 234, 255, 0.6);
+  transform: translateY(-2px);
+}
+
+.btn-spin:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.wheel-status {
+  color: var(--cyan);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  min-height: 20px;
+}
+
+@keyframes wheelSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(var(--final-rotation));
+  }
+}
+
 .footer {
   margin-top: 22px;
   text-align: center;
