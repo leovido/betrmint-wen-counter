@@ -40,6 +40,11 @@ class WenMonitor {
     this.startBtn = document.getElementById("startMonitor");
     this.stopBtn = document.getElementById("stopMonitor");
     this.testBtn = document.getElementById("testConnection");
+    this.randomWinnerBtn = document.getElementById("randomWinner");
+
+    // Winner elements
+    this.winnerCard = document.getElementById("winnerCard");
+    this.winnerMessage = document.getElementById("winnerMessage");
 
     // Messages container
     this.recentMessagesEl = document.getElementById("recentMessages");
@@ -76,6 +81,9 @@ class WenMonitor {
     this.startBtn.addEventListener("click", () => this.startMonitoring());
     this.stopBtn.addEventListener("click", () => this.stopMonitoring());
     this.testBtn.addEventListener("click", () => this.testConnection());
+    this.randomWinnerBtn.addEventListener("click", () =>
+      this.selectRandomWinner()
+    );
 
     // Save config on input changes
     [
@@ -492,6 +500,96 @@ class WenMonitor {
 
     // Update every second
     setTimeout(() => this.updateRunningTime(), 1000);
+  }
+
+  selectRandomWinner() {
+    if (
+      !this.lastData ||
+      !this.lastData.message_details ||
+      this.lastData.message_details.length === 0
+    ) {
+      alert(
+        "No messages available to select a winner from. Please start monitoring first."
+      );
+      return;
+    }
+
+    // Select a random message from the available messages
+    const randomIndex = Math.floor(
+      Math.random() * this.lastData.message_details.length
+    );
+    const winner = this.lastData.message_details[randomIndex];
+
+    // Display the winner
+    this.displayWinner(winner);
+
+    // Highlight the winner in the recent messages
+    this.highlightWinnerInMessages(randomIndex);
+
+    // Show success message
+    console.log(`🎉 Random winner selected: @${winner.senderUsername}`);
+  }
+
+  displayWinner(winner) {
+    // Show the winner card
+    this.winnerCard.style.display = "block";
+
+    // Format timestamp
+    let timestamp = "Unknown time";
+    if (winner.timestamp) {
+      try {
+        timestamp =
+          new Date(winner.timestamp)
+            .toLocaleString("en-GB", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZone: "UTC",
+              hour12: false,
+            })
+            .replace(",", "") + " UTC";
+      } catch (e) {
+        console.error("Error formatting winner timestamp:", e);
+      }
+    }
+
+    // Update winner display
+    this.winnerMessage.innerHTML = `
+      <div class="winner-header">
+        <div class="winner-handle">@${winner.senderUsername}</div>
+        <div class="winner-timestamp">${timestamp}</div>
+      </div>
+      <div class="winner-content">${winner.wen_matches.join(", ")} — "${
+      winner.text
+    }"</div>
+    `;
+
+    // Add celebration effect
+    this.winnerCard.style.animation = "winnerGlow 2s ease-in-out";
+    setTimeout(() => {
+      this.winnerCard.style.animation = "";
+    }, 2000);
+  }
+
+  highlightWinnerInMessages(winnerIndex) {
+    // Remove previous highlights
+    const allMessages = this.recentMessagesEl.querySelectorAll(".msg");
+    allMessages.forEach((msg) => {
+      msg.classList.remove("winner-highlight");
+    });
+
+    // Add highlight to the winner message
+    if (allMessages[winnerIndex]) {
+      allMessages[winnerIndex].classList.add("winner-highlight");
+
+      // Scroll to the winner message
+      allMessages[winnerIndex].scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
   }
 
   async testConnection() {

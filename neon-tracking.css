@@ -270,6 +270,70 @@ body {
   line-height: 1.4;
 }
 
+/* Winner styling */
+.winner-card {
+  border: 2px solid var(--pink);
+  box-shadow: 0 0 20px rgba(255, 43, 214, 0.3);
+  background: rgba(255, 43, 214, 0.05);
+}
+
+.winner-message {
+  padding: 16px;
+  border-radius: 8px;
+  background: rgba(255, 43, 214, 0.1);
+  border: 1px solid rgba(255, 43, 214, 0.3);
+}
+
+.winner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.winner-handle {
+  color: var(--pink);
+  font-weight: 700;
+  font-size: 16px;
+  text-shadow: 0 0 10px rgba(255, 43, 214, 0.6);
+}
+
+.winner-timestamp {
+  color: var(--cyan);
+  font-size: 12px;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.winner-content {
+  color: var(--yellow);
+  font-size: 14px;
+  line-height: 1.5;
+  text-shadow: 0 0 8px rgba(255, 230, 0, 0.4);
+}
+
+/* Winner highlight in message list */
+.msg.winner-highlight {
+  border: 2px solid var(--pink);
+  background: rgba(255, 43, 214, 0.1);
+  box-shadow: 0 0 15px rgba(255, 43, 214, 0.4);
+  transform: scale(1.02);
+  transition: all 0.3s ease;
+}
+
+/* Winner glow animation */
+@keyframes winnerGlow {
+  0% {
+    box-shadow: 0 0 20px rgba(255, 43, 214, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(255, 43, 214, 0.6),
+      0 0 60px rgba(255, 43, 214, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(255, 43, 214, 0.3);
+  }
+}
+
 .footer {
   margin-top: 22px;
   text-align: center;
@@ -356,8 +420,23 @@ body {
   font-size: 12px;
   cursor: pointer;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  transition: all 0.2s ease;
+}
+
+.btn-winner {
+  background: linear-gradient(135deg, var(--pink), var(--cyan));
+  color: white;
+  border: 1px solid var(--pink);
+  box-shadow: 0 0 15px rgba(255, 43, 214, 0.4);
+  transition: all 0.3s ease;
+}
+
+.btn-winner:hover {
+  box-shadow: 0 0 25px rgba(255, 43, 214, 0.6);
+  transform: translateY(-2px);
+}
+
+.btn-winner:active {
+  transform: translateY(0);
 }
 
 .btn-start {
