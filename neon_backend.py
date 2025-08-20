@@ -54,6 +54,7 @@ def get_wen_data():
         fetch_mode = data.get('fetchMode', 'recent')
         max_pages = int(data.get('maxPages', 5))
         target_hours = int(data.get('targetHours', 24))
+        today_only = data.get('todayOnly', False)
 
         if not api_url or not api_token:
             return jsonify({'error': 'API URL and token are required'}), 400
@@ -80,32 +81,66 @@ def get_wen_data():
             'message_details': []
         }
 
-        # Process message details
+        # Process message details with time filtering
         if analysis.get('message_details'):
+            from datetime import datetime, timezone
+            current_time = datetime.now(timezone.utc)
+            
+            if today_only:
+                # Today only: from 00:00 UTC to now
+                today_start = current_time.replace(hour=0, minute=0, second=0, microsecond=0)
+                target_time_ms = int(today_start.timestamp() * 1000)
+                print(f"🔍 Today filter: from {today_start.isoformat()} to {current_time.isoformat()}")
+            else:
+                # Target hours: from X hours ago to now
+                target_time_ms = int((current_time.timestamp() * 1000) - (target_hours * 3600 * 1000))
+                print(f"🔍 Time filtering: target_hours={target_hours}, target_time_ms={target_time_ms}")
+            
+            print(f"🔍 Current time: {current_time.isoformat()}")
+            print(f"🔍 Total messages before filtering: {len(analysis['message_details'])}")
+            
+            filtered_messages = []
             for msg in analysis['message_details']:
                 # Handle timestamp conversion - Farcaster uses milliseconds
                 timestamp = msg.get('timestamp')
-                if timestamp:
-                    # Convert milliseconds to ISO string if it's a number
-                    if isinstance(timestamp, (int, float)):
-                        from datetime import datetime, timezone
-                        timestamp = datetime.fromtimestamp(timestamp / 1000, tz=timezone.utc).isoformat()
-                    elif isinstance(timestamp, str):
-                        # If it's already a string, try to parse and reformat
-                        try:
-                            # Try to parse as milliseconds first
-                            if timestamp.isdigit():
-                                ts_int = int(timestamp)
-                                timestamp = datetime.fromtimestamp(ts_int / 1000, tz=timezone.utc).isoformat()
-                        except:
-                            pass  # Keep original if parsing fails
+                timestamp_ms = None
                 
-                response_data['message_details'].append({
-                    'senderUsername': msg.get('senderUsername', 'Unknown'),
-                    'text': msg.get('text', ''),
-                    'wen_matches': msg.get('wen_matches', []),
-                    'timestamp': timestamp
-                })
+                if timestamp:
+                    # Convert to milliseconds for comparison
+                    if isinstance(timestamp, (int, float)):
+                        timestamp_ms = int(timestamp)
+                    elif isinstance(timestamp, str):
+                        try:
+                            if timestamp.isdigit():
+                                timestamp_ms = int(timestamp)
+                        except:
+                            pass
+                
+                # Only include messages within the target time range
+                if timestamp_ms and timestamp_ms >= target_time_ms:
+                    # Convert to ISO string for display
+                    if isinstance(timestamp, (int, float)):
+                        timestamp_iso = datetime.fromtimestamp(timestamp / 1000, tz=timezone.utc).isoformat()
+                    else:
+                        timestamp_iso = timestamp
+                    
+                    filtered_messages.append({
+                        'senderUsername': msg.get('senderUsername', 'Unknown'),
+                        'text': msg.get('text', ''),
+                        'wen_matches': msg.get('wen_matches', []),
+                        'timestamp': timestamp_iso
+                    })
+            
+            response_data['message_details'] = filtered_messages
+            # Update counts to reflect filtered results
+            response_data['total_wen_count'] = sum(msg.get('wen_count', 1) for msg in filtered_messages)
+            response_data['messages_with_wen'] = len(filtered_messages)
+            
+            print(f"🔍 Messages after time filtering: {len(filtered_messages)}")
+            if today_only:
+                print(f"🔍 Time range: Today only (00:00 UTC to now)")
+            else:
+                print(f"🔍 Time range: {target_hours} hours ago to now")
 
         return jsonify(response_data)
 

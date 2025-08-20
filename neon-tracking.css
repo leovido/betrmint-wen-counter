@@ -326,6 +326,20 @@ body {
   box-shadow: 0 0 8px rgba(255, 230, 0, 0.3);
 }
 
+.config-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--cyan);
+  cursor: pointer;
+}
+
+.checkbox-label {
+  color: var(--white);
+  font-size: 12px;
+  margin-left: 8px;
+  cursor: pointer;
+}
+
 .button-row {
   display: flex;
   gap: 12px;

@@ -33,6 +33,7 @@ class WenMonitor {
     this.fetchModeSelectEl = document.getElementById("fetchModeSelect");
     this.maxPagesEl = document.getElementById("maxPages");
     this.targetHoursEl = document.getElementById("targetHours");
+    this.todayOnlyEl = document.getElementById("todayOnly");
     this.updateIntervalInputEl = document.getElementById("updateIntervalInput");
 
     // Button elements
@@ -53,6 +54,7 @@ class WenMonitor {
     this.fetchModeSelectEl.value = config.fetchMode || "recent";
     this.maxPagesEl.value = config.maxPages || 5;
     this.targetHoursEl.value = config.targetHours || 24;
+    this.todayOnlyEl.checked = config.todayOnly || false;
     this.updateIntervalInputEl.value = config.updateInterval || 300;
   }
 
@@ -63,6 +65,7 @@ class WenMonitor {
       fetchMode: this.fetchModeSelectEl.value,
       maxPages: parseInt(this.maxPagesEl.value),
       targetHours: parseInt(this.targetHoursEl.value),
+      todayOnly: this.todayOnlyEl.checked,
       updateInterval: parseInt(this.updateIntervalInputEl.value),
     };
 
@@ -85,6 +88,9 @@ class WenMonitor {
     ].forEach((el) =>
       el.addEventListener("change", () => this.saveConfiguration())
     );
+
+    // Add event listener for today checkbox
+    this.todayOnlyEl.addEventListener("change", () => this.saveConfiguration());
   }
 
   async startMonitoring() {
@@ -153,6 +159,7 @@ class WenMonitor {
           fetchMode: this.fetchModeSelectEl.value,
           maxPages: parseInt(this.maxPagesEl.value),
           targetHours: parseInt(this.targetHoursEl.value),
+          todayOnly: this.todayOnlyEl.checked,
         }),
       });
 
