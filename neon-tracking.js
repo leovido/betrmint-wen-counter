@@ -98,6 +98,10 @@ class WenMonitor {
     this.startBtn.addEventListener("click", () => this.startMonitoring());
     this.stopBtn.addEventListener("click", () => this.stopMonitoring());
     this.testBtn.addEventListener("click", () => this.testConnection());
+    this.testWenPatternsBtn = document.getElementById("testWenPatterns");
+    this.testWenPatternsBtn.addEventListener("click", () =>
+      this.testWenPatterns()
+    );
     this.randomWinnerBtn.addEventListener("click", () =>
       this.selectRandomWinner()
     );
@@ -910,6 +914,36 @@ class WenMonitor {
     } finally {
       this.testBtn.disabled = false;
       this.testBtn.textContent = "🧪 Test Connection";
+    }
+  }
+
+  async testWenPatterns() {
+    try {
+      this.testWenPatternsBtn.disabled = true;
+      this.testWenPatternsBtn.textContent = "🧪 Testing...";
+
+      const response = await fetch(`${this.backendUrl}/api/test-wen-patterns`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        const summary = result.summary;
+        alert(
+          `✅ WEN Pattern Tests: ${summary.passed}/${summary.total} passed (${summary.successRate})`
+        );
+        console.log("Full test results:", result);
+      } else {
+        alert(`❌ WEN Pattern tests failed: ${result.error}`);
+      }
+    } catch (error) {
+      alert(`❌ WEN Pattern test error: ${error.message}`);
+    } finally {
+      this.testWenPatternsBtn.disabled = false;
+      this.testWenPatternsBtn.textContent = "🧪 Test WEN Patterns";
     }
   }
 }
