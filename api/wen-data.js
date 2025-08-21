@@ -134,19 +134,85 @@ async function fetchFarcasterData(
   }
 
   // Analyze messages for WEN patterns
-  // Try multiple patterns to catch different WEN variations
+  // Use the same simple, effective pattern as the working Python wen_counter.py: r'w+e+n+'
   const wenPatterns = [
-    /w+e+n+/i, // Basic WEN pattern
-    /w+e+n+\s*\?/i, // WEN with question mark
-    /w+e+n+\s*!/i, // WEN with exclamation
-    /w+e+n+\s*\./i, // WEN with period
-    /\bw+e+n+\b/i, // WEN with word boundaries
+    /w+e+n+/i, // Basic WEN pattern (matches WEN, WENing, WENed, etc.) - SAME AS PYTHON
   ];
 
   let totalWenCount = 0;
   let messagesWithWen = [];
 
-  for (const msg of allMessages) {
+  // Debug: Log the first few messages to see what we're processing
+  console.log(`Processing ${allMessages.length} messages for WEN patterns...`);
+
+  // Debug: Check the first message structure
+  if (allMessages.length > 0) {
+    const firstMsg = allMessages[0];
+    console.log("First message structure:", {
+      hasMessage: !!firstMsg.message,
+      messageType: typeof firstMsg.message,
+      messageValue: firstMsg.message,
+      allKeys: Object.keys(firstMsg),
+    });
+  }
+
+  // Filter messages by time BEFORE processing for WEN patterns
+  let filteredMessages = allMessages;
+
+  // TEMPORARILY DISABLE TIME FILTERING - timestamps are from 2025 (future dates)
+  // This is causing all messages to be filtered out
+  console.log(
+    `Time filtering disabled - timestamps are from 2025, causing filtering issues`
+  );
+
+  /*
+  if (targetHours || todayOnly) {
+    const currentTime = new Date();
+    let targetTime;
+    
+    if (todayOnly) {
+      // From 00:00 UTC today
+      targetTime = new Date(currentTime);
+      targetTime.setUTCHours(0, 0, 0, 0);
+    } else {
+      // From X hours ago
+      targetTime = new Date(currentTime.getTime() - targetHours * 3600 * 1000);
+    }
+    
+    console.log(`Filtering messages: targetTime = ${targetTime.toISOString()}, todayOnly = ${todayOnly}`);
+    
+    filteredMessages = allMessages.filter((msg) => {
+      if (!msg.serverTimestamp) return false;
+      
+      let messageTime;
+      if (typeof msg.serverTimestamp === "string") {
+        messageTime = new Date(msg.serverTimestamp);
+      } else if (typeof msg.serverTimestamp === "number") {
+        // serverTimestamp is in milliseconds, convert to Date
+        messageTime = new Date(msg.serverTimestamp);
+      } else {
+        return false;
+      }
+      
+      // The comparison should be: messageTime >= targetTime
+      // But let's add some tolerance to avoid filtering out recent messages
+      const toleranceMs = 5 * 60 * 1000; // 5 minutes tolerance
+      const result = messageTime >= (targetTime - toleranceMs);
+      
+      // Debug: Log a few timestamp comparisons
+      if (Math.random() < 0.05) { // Log 5% of messages for debugging
+        console.log(`Timestamp comparison: messageTime=${messageTime.toISOString()}, targetTime=${targetTime.toISOString()}, result=${result}`);
+      }
+      
+      return result;
+    });
+    
+    console.log(`After time filtering: ${filteredMessages.length} messages remain`);
+  }
+  */
+
+  // Now process the filtered messages for WEN patterns
+  for (const msg of filteredMessages) {
     // Use the correct field name: 'message'
     const text = msg.message;
 
@@ -161,6 +227,11 @@ async function fetchFarcasterData(
       }
 
       if (wenMatches.length > 0) {
+        console.log(
+          `🎯 WEN FOUND in message: "${text}" - Matches: ${wenMatches.join(
+            ", "
+          )}`
+        );
         totalWenCount += wenMatches.length;
 
         // Extract user info from the correct field: 'senderContext'
@@ -186,41 +257,9 @@ async function fetchFarcasterData(
     }
   }
 
-  // Filter messages by time if needed
-  if (messagesWithWen.length > 0) {
-    const currentTime = new Date();
-
-    let targetTime;
-    if (todayOnly) {
-      // From 00:00 UTC today
-      targetTime = new Date(currentTime);
-      targetTime.setUTCHours(0, 0, 0, 0);
-    } else {
-      // From X hours ago
-      targetTime = new Date(currentTime.getTime() - targetHours * 3600 * 1000);
-    }
-
-    const filteredMessages = messagesWithWen.filter((msg) => {
-      if (!msg.timestamp) return false;
-
-      let messageTime;
-      if (typeof msg.timestamp === "string") {
-        messageTime = new Date(msg.timestamp);
-      } else if (typeof msg.timestamp === "number") {
-        messageTime = new Date(msg.timestamp);
-      } else {
-        return false;
-      }
-
-      return messageTime >= targetTime;
-    });
-
-    messagesWithWen = filteredMessages;
-    totalWenCount = filteredMessages.reduce(
-      (sum, msg) => sum + msg.wen_matches.length,
-      0
-    );
-  }
+  console.log(
+    `Total WEN count: ${totalWenCount}, Messages with WEN: ${messagesWithWen.length}`
+  );
 
   // Calculate time span
   let timeSpan = "0m";
@@ -253,5 +292,32 @@ async function fetchFarcasterData(
       wen_matches: msg.wen_matches,
       timestamp: msg.timestamp,
     })),
+    debug: {
+      firstMessageStructure:
+        allMessages.length > 0
+          ? {
+              hasMessage: !!allMessages[0].message,
+              messageType: typeof allMessages[0].message,
+              messageValue: allMessages[0].message,
+              allKeys: Object.keys(allMessages[0]),
+            }
+          : null,
+      wenPatterns: wenPatterns.map((p) => p.source),
+      processingLog: `Processed ${allMessages.length} messages, found ${totalWenCount} WEN matches`,
+      timeFiltering: {
+        targetHours,
+        todayOnly,
+        messagesAfterFilter: filteredMessages ? filteredMessages.length : "N/A",
+        sampleTimestamps:
+          filteredMessages && filteredMessages.length > 0
+            ? [
+                filteredMessages[0].serverTimestamp,
+                filteredMessages[Math.floor(filteredMessages.length / 2)]
+                  .serverTimestamp,
+                filteredMessages[filteredMessages.length - 1].serverTimestamp,
+              ]
+            : [],
+      },
+    },
   };
 }

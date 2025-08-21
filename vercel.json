@@ -28,6 +28,14 @@
     {
       "src": "api/debug-wen.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/debug-real-data.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/test-specific-wen.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -46,6 +54,14 @@
     {
       "src": "/api/debug-wen",
       "dest": "/api/debug-wen.js"
+    },
+    {
+      "src": "/api/debug-real-data",
+      "dest": "/api/debug-real-data.js"
+    },
+    {
+      "src": "/api/test-specific-wen",
+      "dest": "/api/test-specific-wen.js"
     },
     {
       "src": "/",
