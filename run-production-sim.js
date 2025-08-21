@@ -49,7 +49,7 @@ app.use((err, req, res, next) => {
 async function generateAISummary(messages, apiKey, summaryType) {
   const formattedMessages = messages.map((msg) => ({
     role: "user",
-    content: `[${msg.senderUsername || "Unknown"}] ${
+    content: `[${msg.senderUsername || msg.senderContext?.username || "Unknown"}] ${
       msg.text || msg.message || ""
     }`,
   }));
@@ -104,13 +104,14 @@ async function generateAISummary(messages, apiKey, summaryType) {
 function createSystemPrompt(summaryType) {
   const basePrompt = `You are an AI assistant analyzing a group chat conversation. Your task is to provide intelligent insights and summaries similar to Apple Intelligence.
 
-The conversation is from a group chat where people are tracking "WEN" (when) events. Analyze the messages and provide insights.
+The conversation is from a group chat where people are tracking "WEN" (when) events. You will receive ALL messages from the conversation, not just WEN-related ones. This gives you full context to provide comprehensive analysis.
 
 IMPORTANT RULES:
 1. Mention particular users with an @ in front of their username, like this: @toadyhawk.eth
 2. Very important to state when users are talking about something that is getting engagement via replies to their messages
 3. If they are mostly simply writing WEN or related, simply summarise as "X users are WENning"
-4. Respond in the following JSON format only
+4. Analyze the FULL conversation context, including non-WEN messages that provide important context
+5. Respond in the following JSON format only
 
 IMPORTANT: Respond in the following JSON format only:
 {
@@ -273,10 +274,10 @@ app.post("/api/wen-data-with-ai", async (req, res) => {
       selectedDate,
     });
 
-    if (includeAISummary && openaiApiKey && realWenData.message_details) {
+    if (includeAISummary && openaiApiKey && realWenData.all_messages) {
       try {
         const aiSummary = await generateAISummary(
-          realWenData.message_details || [],
+          realWenData.all_messages || [],
           openaiApiKey,
           summaryType
         );

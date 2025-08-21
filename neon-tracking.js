@@ -981,11 +981,11 @@ class WenMonitor {
 
     if (
       !this.lastData ||
-      !this.lastData.message_details ||
-      this.lastData.message_details.length === 0
+      !this.lastData.all_messages ||
+      this.lastData.all_messages.length === 0
     ) {
       alert(
-        "No WEN messages available to summarize. Please start monitoring first."
+        "No messages available to summarize. Please start monitoring first."
       );
       return;
     }
@@ -1004,7 +1004,7 @@ class WenMonitor {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: this.lastData.message_details,
+          messages: this.lastData.all_messages,
           apiKey: this.openaiApiKeyEl.value,
           summaryType: "comprehensive",
         }),
