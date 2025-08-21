@@ -1,25 +1,71 @@
 {
   "version": 2,
-  "functions": {
-    "api/proxy.py": {
-      "maxDuration": 30
-    }
-  },
-  "routes": [
+  "builds": [
     {
-      "src": "/health",
-      "dest": "/api/proxy.py"
+      "src": "index.html",
+      "use": "@vercel/static"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/api/proxy.py"
+      "src": "neon-tracking.html",
+      "use": "@vercel/static"
     },
     {
-      "src": "/(.*)",
-      "dest": "/api/proxy.py"
+      "src": "neon-tracking.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "neon-tracking.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "api/wen-data.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/test-api.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/debug-wen.js",
+      "use": "@vercel/node"
     }
   ],
-  "env": {
-    "FARCASTER_BASE_URL": "https://client.farcaster.xyz/v2"
-  }
+  "routes": [
+    {
+      "src": "/api/wen-data",
+      "dest": "/api/wen-data.js"
+    },
+    {
+      "src": "/api/test-connection",
+      "dest": "/api/wen-data.js"
+    },
+    {
+      "src": "/api/test-api",
+      "dest": "/api/test-api.js"
+    },
+    {
+      "src": "/api/debug-wen",
+      "dest": "/api/debug-wen.js"
+    },
+    {
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/neon-tracking",
+      "dest": "/neon-tracking.html"
+    },
+    {
+      "src": "/neon-tracking.html",
+      "dest": "/neon-tracking.html"
+    },
+    {
+      "src": "/neon-tracking.css",
+      "dest": "/neon-tracking.css"
+    },
+    {
+      "src": "/neon-tracking.js",
+      "dest": "/neon-tracking.js"
+    }
+  ]
 }

@@ -1,0 +1,2 @@
+# Minimal requirements for the ultra-minimal function
+# No external dependencies for now - just pure Python

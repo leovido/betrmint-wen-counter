@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WEN Monitor - Redirecting...</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background: #000;
+        color: #00ff00;
+      }
+      .container {
+        text-align: center;
+      }
+      .spinner {
+        border: 4px solid #333;
+        border-top: 4px solid #00ff00;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="spinner"></div>
+      <h1>WEN Monitor</h1>
+      <p>Redirecting to dashboard...</p>
+      <p>
+        <a href="/neon-tracking.html" style="color: #00ff00"
+          >Click here if not redirected automatically</a
+        >
+      </p>
+    </div>
+
+    <script>
+      // Redirect to the main dashboard after 2 seconds
+      setTimeout(function () {
+        window.location.href = "/neon-tracking.html";
+      }, 2000);
+    </script>
+  </body>
+</html>

@@ -5,7 +5,7 @@ class WenMonitor {
     this.startTime = null;
     this.updateCount = 0;
     this.lastData = null;
-    this.backendUrl = "http://localhost:5000"; // Default Flask server URL
+    this.backendUrl = window.location.origin; // Use current domain (Vercel)
 
     this.initializeElements();
     this.loadConfiguration();
