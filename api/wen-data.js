@@ -400,6 +400,7 @@ async function fetchFarcasterData(
       wen_matches: msg.wen_matches,
       timestamp: msg.timestamp,
     })),
+    all_messages: allMessages,
     debug: {
       firstMessageStructure:
         allMessages.length > 0

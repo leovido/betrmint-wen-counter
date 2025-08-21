@@ -49,9 +49,9 @@ app.use((err, req, res, next) => {
 async function generateAISummary(messages, apiKey, summaryType) {
   const formattedMessages = messages.map((msg) => ({
     role: "user",
-    content: `[${msg.senderUsername || msg.senderContext?.username || "Unknown"}] ${
-      msg.text || msg.message || ""
-    }`,
+    content: `[${
+      msg.senderUsername || msg.senderContext?.username || "Unknown"
+    }] ${msg.text || msg.message || ""}`,
   }));
 
   const systemPrompt = createSystemPrompt(summaryType);
