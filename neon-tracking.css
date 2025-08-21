@@ -575,6 +575,39 @@ body {
   cursor: pointer;
 }
 
+.date-filter-container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.date-input {
+  flex: 1;
+  min-width: 140px;
+}
+
+.btn-clear {
+  background: var(--pink);
+  color: var(--bg);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-clear:hover {
+  background: #ff6bdd;
+  transform: translateY(-1px);
+}
+
+.btn-clear:active {
+  transform: translateY(0);
+}
+
 .button-row {
   display: flex;
   gap: 12px;

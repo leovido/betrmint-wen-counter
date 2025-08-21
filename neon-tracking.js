@@ -34,6 +34,8 @@ class WenMonitor {
     this.maxPagesEl = document.getElementById("maxPages");
     this.targetHoursEl = document.getElementById("targetHours");
     this.todayOnlyEl = document.getElementById("todayOnly");
+    this.datePickerEl = document.getElementById("datePicker");
+    this.clearDateBtn = document.getElementById("clearDate");
     this.updateIntervalInputEl = document.getElementById("updateIntervalInput");
 
     // Button elements
@@ -69,6 +71,12 @@ class WenMonitor {
     this.targetHoursEl.value = config.targetHours || 24;
     this.todayOnlyEl.checked = config.todayOnly || false;
     this.updateIntervalInputEl.value = config.updateInterval || 300;
+
+    // Load selected date
+    const savedDate = localStorage.getItem("selectedDate");
+    if (savedDate) {
+      this.datePickerEl.value = savedDate;
+    }
   }
 
   saveConfiguration() {
@@ -79,6 +87,7 @@ class WenMonitor {
       maxPages: parseInt(this.maxPagesEl.value),
       targetHours: parseInt(this.targetHoursEl.value),
       todayOnly: this.todayOnlyEl.checked,
+      selectedDate: this.datePickerEl.value || null,
       updateInterval: parseInt(this.updateIntervalInputEl.value),
     };
 
@@ -108,6 +117,35 @@ class WenMonitor {
 
     // Add event listener for today checkbox
     this.todayOnlyEl.addEventListener("change", () => this.saveConfiguration());
+
+    // Date picker event listeners
+    this.datePickerEl.addEventListener("change", () => {
+      const selectedDate = this.datePickerEl.value;
+      if (selectedDate) {
+        localStorage.setItem("selectedDate", selectedDate);
+        // Uncheck today only if date is selected
+        this.todayOnlyEl.checked = false;
+        localStorage.setItem("todayOnly", false);
+        this.saveConfiguration();
+      } else {
+        localStorage.removeItem("selectedDate");
+        this.saveConfiguration();
+      }
+      // Refresh data if monitor is running
+      if (this.monitorInterval) {
+        this.fetchData();
+      }
+    });
+
+    this.clearDateBtn.addEventListener("click", () => {
+      this.datePickerEl.value = "";
+      localStorage.removeItem("selectedDate");
+      this.saveConfiguration();
+      // Refresh data if monitor is running
+      if (this.monitorInterval) {
+        this.fetchData();
+      }
+    });
   }
 
   async startMonitoring() {
@@ -177,6 +215,7 @@ class WenMonitor {
           maxPages: parseInt(this.maxPagesEl.value),
           targetHours: parseInt(this.targetHoursEl.value),
           todayOnly: this.todayOnlyEl.checked,
+          selectedDate: this.datePickerEl.value || null,
         }),
       });
 

@@ -12,8 +12,15 @@ export default async function handler(req, res) {
   // Handle POST requests
   if (req.method === "POST") {
     try {
-      const { apiUrl, apiToken, fetchMode, maxPages, targetHours, todayOnly } =
-        req.body;
+      const {
+        apiUrl,
+        apiToken,
+        fetchMode,
+        maxPages,
+        targetHours,
+        todayOnly,
+        selectedDate,
+      } = req.body;
 
       // Validate required parameters
       if (!apiUrl || !apiToken) {
@@ -30,7 +37,8 @@ export default async function handler(req, res) {
         fetchMode,
         maxPages,
         targetHours,
-        todayOnly
+        todayOnly,
+        selectedDate
       );
 
       res.setHeader("Access-Control-Allow-Origin", "*");
@@ -57,7 +65,8 @@ async function fetchFarcasterData(
   fetchMode = "recent",
   maxPages = 5,
   targetHours = 24,
-  todayOnly = false
+  todayOnly = false,
+  selectedDate = null
 ) {
   const headers = {
     Authorization: `Bearer ${apiToken}`,
@@ -68,40 +77,97 @@ async function fetchFarcasterData(
   let currentUrl = apiUrl;
   let pageCount = 0;
 
-  // Fetch messages based on mode
-  while (currentUrl && pageCount < maxPages) {
-    try {
-      const response = await fetch(currentUrl, { headers, timeout: 30000 });
+  // Implement exact Python logic from wen_counter.py
+  if (fetchMode === "all") {
+    // Fetch ALL messages until no more cursor (same as Python fetch_all_messages)
+    console.log("Fetching ALL messages until no more cursor is available...");
 
-      if (!response.ok) {
-        throw new Error(
-          `Farcaster API error: ${response.status} ${response.statusText}`
-        );
-      }
-
-      const data = await response.json();
-
-      // Extract messages from response
-      if (data.result && data.result.messages) {
-        allMessages.push(...data.result.messages);
-      }
-
-      // Get next page cursor
-      if (data.next && data.next.cursor) {
-        // Handle different URL formats
-        if (currentUrl.includes("?")) {
-          currentUrl = `${apiUrl}&cursor=${data.next.cursor}`;
-        } else {
-          currentUrl = `${apiUrl}?cursor=${data.next.cursor}`;
-        }
-      } else {
-        currentUrl = null; // No more pages
-      }
-
+    while (currentUrl) {
       pageCount++;
-    } catch (error) {
-      console.error(`Error fetching page ${pageCount}:`, error);
-      break;
+      console.log(`Fetching page ${pageCount}...`);
+
+      try {
+        const response = await fetch(currentUrl, { headers, timeout: 30000 });
+
+        if (!response.ok) {
+          throw new Error(
+            `Farcaster API error: ${response.status} ${response.statusText}`
+          );
+        }
+
+        const data = await response.json();
+
+        // Extract messages from response
+        if (data.result && data.result.messages) {
+          allMessages.push(...data.result.messages);
+          console.log(
+            `Page ${pageCount}: Got ${data.result.messages.length} messages`
+          );
+        }
+
+        // Get next page cursor (same logic as Python)
+        if (data.next && data.next.cursor) {
+          // Parse the base URL and add the cursor properly (same as Python)
+          if (currentUrl.includes("?")) {
+            // Remove any existing cursor parameters first
+            const baseParts = currentUrl.split("&cursor=");
+            if (baseParts.length > 1) {
+              currentUrl = baseParts[0];
+            }
+            currentUrl = `${currentUrl}&cursor=${data.next.cursor}`;
+          } else {
+            currentUrl = `${currentUrl}?cursor=${data.next.cursor}`;
+          }
+          console.log(`Next URL: ${currentUrl}`);
+        } else {
+          console.log("No next.cursor found - reached the end of all messages");
+          currentUrl = null;
+        }
+      } catch (error) {
+        console.error(`Error fetching page ${pageCount}:`, error);
+        break;
+      }
+    }
+
+    console.log(
+      `Fetched ${allMessages.length} messages across ${pageCount} pages (complete conversation history)`
+    );
+  } else {
+    // Fetch messages based on mode (recent or single)
+    while (currentUrl && pageCount < maxPages) {
+      try {
+        const response = await fetch(currentUrl, { headers, timeout: 30000 });
+
+        if (!response.ok) {
+          throw new Error(
+            `Farcaster API error: ${response.status} ${response.statusText}`
+          );
+        }
+
+        const data = await response.json();
+
+        // Extract messages from response
+        if (data.result && data.result.messages) {
+          allMessages.push(...data.result.messages);
+        }
+
+        // Get next page cursor
+        if (data.next && data.next.cursor) {
+          // Handle different URL formats
+          if (currentUrl.includes("?")) {
+            currentUrl = `${apiUrl}&cursor=${data.next.cursor}`;
+          } else {
+            currentUrl = `${apiUrl}?cursor=${data.next.cursor}`;
+          }
+        } else {
+          currentUrl = null; // No more pages
+        }
+
+        pageCount++;
+      } catch (error) {
+        console.error(`Error fetching page ${pageCount}:`, error);
+        break;
+      }
     }
   }
 
@@ -133,11 +199,16 @@ async function fetchFarcasterData(
     }
   }
 
-  // Analyze messages for WEN patterns
-  // Use the same simple, effective pattern as the working Python wen_counter.py: r'w+e+n+'
+  // Analyze messages for WEN patterns - Enhanced to capture ALL WEN variations and repetitions
+  // Original Python: self.wen_pattern = re.compile(r'w+e+n+', re.IGNORECASE)
+  // Enhanced: Capture all variations including WENing, wenwen (counts as 2), etc.
   const wenPatterns = [
-    /w+e+n+/i, // Basic WEN pattern (matches WEN, WENing, WENed, etc.) - SAME AS PYTHON
+    /w+e+n+[a-z]*/gi, // Enhanced pattern: captures WEN + any following letters (WENing, WENed, etc.)
   ];
+
+  console.log(
+    `Using enhanced WEN pattern: ${wenPatterns[0].source} (captures extended words + global + case insensitive)`
+  );
 
   let totalWenCount = 0;
   let messagesWithWen = [];
@@ -159,82 +230,118 @@ async function fetchFarcasterData(
   // Filter messages by time BEFORE processing for WEN patterns
   let filteredMessages = allMessages;
 
-  // TEMPORARILY DISABLE TIME FILTERING - timestamps are from 2025 (future dates)
-  // This is causing all messages to be filtered out
-  console.log(
-    `Time filtering disabled - timestamps are from 2025, causing filtering issues`
-  );
-
-  /*
-  if (targetHours || todayOnly) {
+  // Implement EXACT Python time filtering logic from wen_counter.py
+  if (targetHours || todayOnly || selectedDate) {
     const currentTime = new Date();
     let targetTime;
-    
-    if (todayOnly) {
-      // From 00:00 UTC today
+    let endTime = null;
+
+    if (selectedDate) {
+      // Filter by specific selected date (00:00 UTC to 23:59:59 UTC)
+      const selectedDateObj = new Date(selectedDate);
+      targetTime = new Date(selectedDateObj);
+      targetTime.setUTCHours(0, 0, 0, 0);
+      endTime = new Date(selectedDateObj);
+      endTime.setUTCHours(23, 59, 59, 999);
+      console.log(
+        `Selected date filter: from ${targetTime.toISOString()} to ${endTime.toISOString()}`
+      );
+    } else if (todayOnly) {
+      // EXACT Python logic: today_start = current_time.replace(hour=0, minute=0, second=0, microsecond=0)
       targetTime = new Date(currentTime);
       targetTime.setUTCHours(0, 0, 0, 0);
+      console.log(
+        `Python today filter: from ${targetTime.toISOString()} (00:00 UTC today)`
+      );
     } else {
-      // From X hours ago
+      // EXACT Python logic: target_time = current_time.timestamp() * 1000 - (target_hours * 3600 * 1000)
       targetTime = new Date(currentTime.getTime() - targetHours * 3600 * 1000);
+      console.log(
+        `Python target hours filter: from ${targetTime.toISOString()} (${targetHours} hours ago)`
+      );
     }
-    
-    console.log(`Filtering messages: targetTime = ${targetTime.toISOString()}, todayOnly = ${todayOnly}`);
-    
+
+    console.log(`Current time: ${currentTime.toISOString()}`);
+    console.log(`Target time: ${targetTime.toISOString()}`);
+
+    // Debug: Show sample timestamps from messages (like Python debug)
+    const sampleTimestamps = allMessages.slice(0, 5).map((msg) => ({
+      message: msg.message?.substring(0, 30) + "...",
+      serverTimestamp: msg.serverTimestamp,
+      messageTime: new Date(msg.serverTimestamp).toISOString(),
+      isRecent: new Date(msg.serverTimestamp) >= targetTime,
+    }));
+    console.log("Sample message timestamps:", sampleTimestamps);
+
+    // EXACT Python filter logic: filter_messages_for_today
     filteredMessages = allMessages.filter((msg) => {
       if (!msg.serverTimestamp) return false;
-      
+
       let messageTime;
       if (typeof msg.serverTimestamp === "string") {
         messageTime = new Date(msg.serverTimestamp);
       } else if (typeof msg.serverTimestamp === "number") {
-        // serverTimestamp is in milliseconds, convert to Date
+        // serverTimestamp is in milliseconds, same as Python
         messageTime = new Date(msg.serverTimestamp);
       } else {
         return false;
       }
-      
-      // The comparison should be: messageTime >= targetTime
-      // But let's add some tolerance to avoid filtering out recent messages
-      const toleranceMs = 5 * 60 * 1000; // 5 minutes tolerance
-      const result = messageTime >= (targetTime - toleranceMs);
-      
-      // Debug: Log a few timestamp comparisons
-      if (Math.random() < 0.05) { // Log 5% of messages for debugging
-        console.log(`Timestamp comparison: messageTime=${messageTime.toISOString()}, targetTime=${targetTime.toISOString()}, result=${result}`);
+
+      // EXACT Python logic: return messageTime >= targetTime
+      let result = messageTime >= targetTime;
+
+      // If we have an end time (selected date), also check upper bound
+      if (endTime) {
+        result = result && messageTime <= endTime;
       }
-      
+
+      // Debug: Log a few timestamp comparisons
+      if (Math.random() < 0.05) {
+        const timeRange = endTime
+          ? `${targetTime.toISOString()} to ${endTime.toISOString()}`
+          : targetTime.toISOString();
+        console.log(
+          `Python timestamp comparison: messageTime=${messageTime.toISOString()}, timeRange=${timeRange}, result=${result}`
+        );
+      }
+
       return result;
     });
-    
-    console.log(`After time filtering: ${filteredMessages.length} messages remain`);
+
+    console.log(
+      `After Python-style filtering: ${filteredMessages.length} messages remain`
+    );
   }
-  */
 
-  // Now process the filtered messages for WEN patterns
+  // Now process the filtered messages for WEN patterns - EXACT Python logic from wen_counter.py
   for (const msg of filteredMessages) {
-    // Use the correct field name: 'message'
-    const text = msg.message;
+    // EXACT Python logic: if message.get('type') == 'text' and 'message' in message:
+    if (msg.type === "text" && msg.message) {
+      const text = msg.message;
 
-    if (text) {
-      // Try all patterns
+      // Enhanced logic: Find ALL WEN patterns including overlapping ones
+      // This will count "WENWEN" as 2 separate WENs
       let wenMatches = [];
       for (const pattern of wenPatterns) {
-        const matches = text.match(pattern);
-        if (matches) {
-          wenMatches.push(...matches);
+        // Use exec in a loop to find overlapping matches
+        let match;
+        const textCopy = text; // Create a copy for exec
+        while ((match = pattern.exec(textCopy)) !== null) {
+          wenMatches.push(match[0]);
+          // Reset lastIndex to allow overlapping matches
+          pattern.lastIndex = match.index + 1;
         }
+        // Reset pattern for next use
+        pattern.lastIndex = 0;
       }
 
       if (wenMatches.length > 0) {
         console.log(
-          `🎯 WEN FOUND in message: "${text}" - Matches: ${wenMatches.join(
-            ", "
-          )}`
+          `🎯 Python WEN FOUND: "${text}" - Matches: ${wenMatches.join(", ")}`
         );
         totalWenCount += wenMatches.length;
 
-        // Extract user info from the correct field: 'senderContext'
+        // EXACT Python logic for user info extraction
         let senderUsername = "Unknown";
         if (msg.senderContext && msg.senderContext.username) {
           senderUsername = msg.senderContext.username;
@@ -244,7 +351,7 @@ async function fetchFarcasterData(
           senderUsername = `User${msg.senderContext.fid}`;
         }
 
-        // Extract timestamp from the correct field: 'serverTimestamp'
+        // EXACT Python logic for timestamp
         let timestamp = msg.serverTimestamp;
 
         messagesWithWen.push({
@@ -261,7 +368,7 @@ async function fetchFarcasterData(
     `Total WEN count: ${totalWenCount}, Messages with WEN: ${messagesWithWen.length}`
   );
 
-  // Calculate time span
+  // Calculate time span (same logic as Python wen_counter.py)
   let timeSpan = "0m";
   if (messagesWithWen.length > 0) {
     const timestamps = messagesWithWen
@@ -277,6 +384,7 @@ async function fetchFarcasterData(
       const hours = Math.floor(timeDiff / (1000 * 60 * 60));
       const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
 
+      // Same formatting as Python: "20h 2m" or "45m"
       timeSpan = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
     }
   }
@@ -307,6 +415,7 @@ async function fetchFarcasterData(
       timeFiltering: {
         targetHours,
         todayOnly,
+        selectedDate,
         messagesAfterFilter: filteredMessages ? filteredMessages.length : "N/A",
         sampleTimestamps:
           filteredMessages && filteredMessages.length > 0
@@ -317,6 +426,63 @@ async function fetchFarcasterData(
                 filteredMessages[filteredMessages.length - 1].serverTimestamp,
               ]
             : [],
+        debugInfo: {
+          currentTime: new Date().toISOString(),
+          targetTime:
+            targetHours || todayOnly || selectedDate
+              ? (() => {
+                  if (selectedDate) {
+                    const selectedDateObj = new Date(selectedDate);
+                    const startTime = new Date(selectedDateObj);
+                    startTime.setUTCHours(0, 0, 0, 0);
+                    const endTime = new Date(selectedDateObj);
+                    endTime.setUTCHours(23, 59, 59, 999);
+                    return `${startTime.toISOString()} to ${endTime.toISOString()}`;
+                  } else if (todayOnly) {
+                    const now = new Date();
+                    const today = new Date(now);
+                    today.setUTCHours(0, 0, 0, 0);
+                    return today.toISOString();
+                  } else {
+                    const now = new Date();
+                    const target = new Date(
+                      now.getTime() - targetHours * 3600 * 1000
+                    );
+                    return target.toISOString();
+                  }
+                })()
+              : "N/A",
+          sampleMessageTimestamps: allMessages.slice(0, 3).map((msg) => ({
+            message: msg.message?.substring(0, 30) + "...",
+            serverTimestamp: msg.serverTimestamp,
+            messageTime: new Date(msg.serverTimestamp).toISOString(),
+            isRecent:
+              targetHours || todayOnly || selectedDate
+                ? (() => {
+                    if (selectedDate) {
+                      const selectedDateObj = new Date(selectedDate);
+                      const startTime = new Date(selectedDateObj);
+                      startTime.setUTCHours(0, 0, 0, 0);
+                      const endTime = new Date(selectedDateObj);
+                      endTime.setUTCHours(23, 59, 59, 999);
+                      const messageTime = new Date(msg.serverTimestamp);
+                      return messageTime >= startTime && messageTime <= endTime;
+                    } else if (todayOnly) {
+                      const now = new Date();
+                      const today = new Date(now);
+                      today.setUTCHours(0, 0, 0, 0);
+                      return new Date(msg.serverTimestamp) >= today;
+                    } else {
+                      const now = new Date();
+                      const target = new Date(
+                        now.getTime() - targetHours * 3600 * 1000
+                      );
+                      return new Date(msg.serverTimestamp) >= target;
+                    }
+                  })()
+                : true,
+          })),
+        },
       },
     },
   };
