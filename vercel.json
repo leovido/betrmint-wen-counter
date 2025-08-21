@@ -18,6 +18,10 @@
       "use": "@vercel/static"
     },
     {
+      "src": "ai-summarizer-demo.html",
+      "use": "@vercel/static"
+    },
+    {
       "src": "api/wen-data.js",
       "use": "@vercel/node"
     },
@@ -39,6 +43,18 @@
     },
     {
       "src": "api/test-wen-patterns.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/ai-summarizer.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/test-ai-summarizer.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/wen-data-with-ai.js",
       "use": "@vercel/node"
     }
   ],
@@ -72,6 +88,18 @@
       "dest": "/api/test-wen-patterns.js"
     },
     {
+      "src": "/api/ai-summarizer",
+      "dest": "/api/ai-summarizer.js"
+    },
+    {
+      "src": "/api/test-ai-summarizer",
+      "dest": "/api/test-ai-summarizer.js"
+    },
+    {
+      "src": "/api/wen-data-with-ai",
+      "dest": "/api/wen-data-with-ai.js"
+    },
+    {
       "src": "/",
       "dest": "/index.html"
     },
@@ -90,6 +118,10 @@
     {
       "src": "/neon-tracking.js",
       "dest": "/neon-tracking.js"
+    },
+    {
+      "src": "/ai-summarizer-demo",
+      "dest": "/ai-summarizer-demo.html"
     }
   ]
 }

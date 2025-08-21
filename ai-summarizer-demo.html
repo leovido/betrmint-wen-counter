@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WEN AI Summarizer Demo</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+        }
+        
+        .error {
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid #ff6b6b;
+            color: #ff6b6b;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4caf50;
+            color: #4caf50;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .summary-card {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .summary-section {
+            margin-bottom: 20px;
+        }
+        
+        .summary-section h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+        
+        .summary-section ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .summary-section li {
+            margin-bottom: 5px;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.3s;
+            border: none;
+            color: white;
+            background: transparent;
+        }
+        
+        .tab.active {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 WEN AI Summarizer</h1>
+    
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('standalone')">Standalone AI</button>
+            <button class="tab" onclick="showTab('integrated')">Integrated WEN + AI</button>
+            <button class="tab" onclick="showTab('test')">Test Data</button>
+        </button>
+    </div>
+    
+    <!-- Standalone AI Tab -->
+    <div id="standalone" class="tab-content active">
+        <div class="container">
+            <h2>🎯 Standalone AI Summarizer</h2>
+            <p>Analyze any group chat messages with AI intelligence</p>
+            
+            <div class="form-group">
+                <label for="openaiKey">OpenAI API Key:</label>
+                <input type="password" id="openaiKey" placeholder="sk-...">
+            </div>
+            
+            <div class="form-group">
+                <label for="summaryType">Summary Type:</label>
+                <select id="summaryType">
+                    <option value="comprehensive">Comprehensive</option>
+                    <option value="brief">Brief</option>
+                    <option value="detailed">Detailed</option>
+                    <option value="wen-focused">WEN-Focused</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="messages">Messages (JSON array):</label>
+                <textarea id="messages" rows="10" placeholder='[{"senderUsername": "user1", "text": "Hello world!"}]'></textarea>
+            </div>
+            
+            <button onclick="generateStandaloneSummary()">Generate AI Summary</button>
+            
+            <div id="standaloneResult"></div>
+        </div>
+    </div>
+    
+    <!-- Integrated WEN + AI Tab -->
+    <div id="integrated" class="tab-content">
+        <div class="container">
+            <h2>🚀 Integrated WEN + AI Analysis</h2>
+            <p>Fetch WEN data and get AI insights in one call</p>
+            
+            <div class="form-group">
+                <label for="integratedApiUrl">Farcaster API URL:</label>
+                <input type="text" id="integratedApiUrl" placeholder="https://api.farcaster.xyz/v2/casts?parentUrl=...">
+            </div>
+            
+            <div class="form-group">
+                <label for="integratedApiToken">Farcaster API Token:</label>
+                <input type="password" id="integratedApiToken" placeholder="Bearer token...">
+            </div>
+            
+            <div class="form-group">
+                <label for="integratedOpenaiKey">OpenAI API Key:</label>
+                <input type="password" id="integratedOpenaiKey" placeholder="sk-...">
+            </div>
+            
+            <div class="form-group">
+                <label for="integratedSummaryType">Summary Type:</label>
+                <select id="integratedSummaryType">
+                    <option value="comprehensive">Comprehensive</option>
+                    <option value="brief">Brief</option>
+                    <option value="detailed">Detailed</option>
+                    <option value="wen-focused">WEN-Focused</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="fetchMode">Fetch Mode:</label>
+                <select id="fetchMode">
+                    <option value="recent">Recent</option>
+                    <option value="all">All Messages</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="targetHours">Target Hours (for recent mode):</label>
+                <input type="number" id="targetHours" value="24" min="1" max="168">
+            </div>
+            
+            <button onclick="generateIntegratedSummary()">Fetch WEN Data + AI Summary</button>
+            
+            <div id="integratedResult"></div>
+        </div>
+    </div>
+    
+    <!-- Test Data Tab -->
+    <div id="test" class="tab-content">
+        <div class="container">
+            <h2>🧪 Test with Sample Data</h2>
+            <p>Test the AI summarizer with predefined sample messages</p>
+            
+            <div class="form-group">
+                <label for="testOpenaiKey">OpenAI API Key:</label>
+                <input type="password" id="testOpenaiKey" placeholder="sk-...">
+            </div>
+            
+            <div class="form-group">
+                <label for="testSummaryType">Summary Type:</label>
+                <select id="testSummaryType">
+                    <option value="comprehensive">Comprehensive</option>
+                    <option value="brief">Brief</option>
+                    <option value="detailed">Detailed</option>
+                    <option value="wen-focused">WEN-Focused</option>
+                </select>
+            </div>
+            
+            <button onclick="testWithSampleData()">Test with Sample Data</button>
+            
+            <div id="testResult"></div>
+        </div>
+    </div>
+    
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+        
+        async function generateStandaloneSummary() {
+            const apiKey = document.getElementById('openaiKey').value;
+            const summaryType = document.getElementById('summaryType').value;
+            const messagesText = document.getElementById('messages').value;
+            const resultDiv = document.getElementById('standaloneResult');
+            
+            if (!apiKey || !messagesText) {
+                resultDiv.innerHTML = '<div class="error">Please provide both API key and messages</div>';
+                return;
+            }
+            
+            try {
+                const messages = JSON.parse(messagesText);
+                resultDiv.innerHTML = '<div class="loading">Generating AI summary...</div>';
+                
+                const response = await fetch('/api/ai-summarizer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages, apiKey, summaryType })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    displaySummary(result, resultDiv);
+                } else {
+                    resultDiv.innerHTML = `<div class="error">Error: ${result.error || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function generateIntegratedSummary() {
+            const apiUrl = document.getElementById('integratedApiUrl').value;
+            const apiToken = document.getElementById('integratedApiToken').value;
+            const openaiKey = document.getElementById('integratedOpenaiKey').value;
+            const summaryType = document.getElementById('integratedSummaryType').value;
+            const fetchMode = document.getElementById('fetchMode').value;
+            const targetHours = parseInt(document.getElementById('targetHours').value);
+            const resultDiv = document.getElementById('integratedResult');
+            
+            if (!apiUrl || !apiToken || !openaiKey) {
+                resultDiv.innerHTML = '<div class="error">Please provide all required API keys and URLs</div>';
+                return;
+            }
+            
+            try {
+                resultDiv.innerHTML = '<div class="loading">Fetching WEN data and generating AI summary...</div>';
+                
+                const response = await fetch('/api/wen-data-with-ai', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        apiUrl,
+                        apiToken,
+                        fetchMode,
+                        targetHours,
+                        includeAISummary: true,
+                        openaiApiKey: openaiKey,
+                        summaryType
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displayIntegratedResult(result, resultDiv);
+                } else {
+                    resultDiv.innerHTML = `<div class="error">Error: ${result.error || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testWithSampleData() {
+            const openaiKey = document.getElementById('testOpenaiKey').value;
+            const summaryType = document.getElementById('testSummaryType').value;
+            const resultDiv = document.getElementById('testResult');
+            
+            if (!openaiKey) {
+                resultDiv.innerHTML = '<div class="error">Please provide OpenAI API key</div>';
+                return;
+            }
+            
+            try {
+                resultDiv.innerHTML = '<div class="loading">Testing with sample data...</div>';
+                
+                // First get sample data
+                const sampleResponse = await fetch('/api/test-ai-summarizer');
+                const sampleData = await sampleResponse.json();
+                
+                if (!sampleResponse.ok) {
+                    throw new Error(sampleData.error || 'Failed to get sample data');
+                }
+                
+                // Now test AI summarizer
+                const aiResponse = await fetch('/api/ai-summarizer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        messages: sampleData.sample_messages,
+                        apiKey: openaiKey,
+                        summaryType
+                    })
+                });
+                
+                const aiResult = await aiResponse.json();
+                
+                if (aiResponse.ok && aiResult.success) {
+                    displaySummary(aiResult, resultDiv);
+                } else {
+                    resultDiv.innerHTML = `<div class="error">AI Error: ${aiResult.error || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+        
+        function displaySummary(result, container) {
+            const summary = result.summary;
+            
+            container.innerHTML = `
+                <div class="summary-card">
+                    <h3>🤖 AI-Generated Summary</h3>
+                    
+                    <div class="summary-section">
+                        <h3>📋 Conversation Overview</h3>
+                        <p>${summary.conversation_overview}</p>
+                    </div>
+                    
+                    <div class="summary-section">
+                        <h3>🎯 Key Themes</h3>
+                        <ul>${summary.key_themes.map(theme => `<li>${theme}</li>`).join('')}</ul>
+                    </div>
+                    
+                    <div class="summary-section">
+                        <h3>😊 Sentiment</h3>
+                        <p><strong>${summary.sentiment}</strong></p>
+                    </div>
+                    
+                    <div class="summary-section">
+                        <h3>⏰ WEN Context</h3>
+                        <p>${summary.wen_context}</p>
+                    </div>
+                    
+                    <div class="summary-section">
+                        <h3>✅ Action Items</h3>
+                        <ul>${summary.action_items.map(item => `<li>${item}</li>`).join('')}</ul>
+                    </div>
+                    
+                    <div class="summary-section">
+                        <h3>📈 Trending Topics</h3>
+                        <ul>${summary.trending_topics.map(topic => `<li>${topic}</li>`).join('')}</ul>
+                    </div>
+                    
+                    <div class="summary-section">
+                        <h3>💡 Key Insights</h3>
+                        <p>${summary.key_insights}</p>
+                    </div>
+                    
+                    <div class="summary-section">
+                        <h3>🚀 Recommendations</h3>
+                        <p>${summary.recommendations}</p>
+                    </div>
+                    
+                    <div class="success">
+                        <strong>Metadata:</strong> Processed ${result.metadata.message_count} messages using ${result.metadata.model}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function displayIntegratedResult(result, container) {
+            container.innerHTML = `
+                <div class="summary-card">
+                    <h3>🚀 WEN Data + AI Summary</h3>
+                    
+                    <div class="summary-section">
+                        <h3>📊 WEN Statistics</h3>
+                        <ul>
+                            <li><strong>Total WEN Count:</strong> ${result.total_wen_count}</li>
+                            <li><strong>Total Messages:</strong> ${result.total_messages}</li>
+                            <li><strong>Messages with WEN:</strong> ${result.messages_with_wen}</li>
+                            <li><strong>Time Span:</strong> ${result.time_analysis.time_span_formatted}</li>
+                        </ul>
+                    </div>
+                    
+                    ${result.ai_summary && result.ai_summary.success ? `
+                        <div class="summary-section">
+                            <h3>🤖 AI Summary</h3>
+                            <p><strong>Overview:</strong> ${result.ai_summary.summary.conversation_overview}</p>
+                            <p><strong>Sentiment:</strong> ${result.ai_summary.summary.sentiment}</p>
+                            <p><strong>WEN Context:</strong> ${result.ai_summary.summary.wen_context}</p>
+                            <p><strong>Key Insights:</strong> ${result.ai_summary.summary.key_insights}</p>
+                        </div>
+                    ` : `
+                        <div class="error">
+                            <strong>AI Summary Failed:</strong> ${result.ai_summary?.error || 'Unknown error'}
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
