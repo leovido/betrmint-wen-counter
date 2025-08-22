@@ -19,6 +19,7 @@ class WenMonitor {
     this.messagesWithWenEl = document.getElementById("messagesWithWen");
     this.messageTimespanEl = document.getElementById("messageTimespan");
 
+    this.formatted_all_messages = [];
     // Status elements
     this.fetchModeEl = document.getElementById("fetchMode");
     this.filterStatusEl = document.getElementById("filterStatus");
