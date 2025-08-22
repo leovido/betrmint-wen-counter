@@ -1014,6 +1014,8 @@ class WenMonitor {
         mentions: msg.mentions || [],
       }));
 
+    console.log(this.formatted_all_messages, "here messages");
+
     try {
       const response = await fetch(`${this.backendUrl}/api/ai-summarizer`, {
         method: "POST",
