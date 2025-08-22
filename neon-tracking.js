@@ -1001,22 +1001,7 @@ class WenMonitor {
     this.aiSummaryError.style.display = "none";
 
     try {
-      this.formatted_all_messages = this.lastData.all_messages
-        .slice(
-          0,
-          Math.min(Math.ceil(this.lastData.all_messages.length * 0.5), 500)
-        )
-        .map((msg) => ({
-          username:
-            msg.senderContext?.username ||
-            msg.senderContext?.displayName ||
-            `User${msg.senderContext?.fid || "Unknown"}`,
-          type: msg.type,
-          message: msg.message,
-          senderFID: msg.senderFid,
-          serverTimestamp: msg.serverTimestamp,
-          mentions: msg.mentions || [],
-        }));
+      this.formatted_all_messages = this.lastData.all_messages;
 
       const response = await fetch(`${this.backendUrl}/api/ai-summarizer`, {
         method: "POST",

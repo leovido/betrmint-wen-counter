@@ -389,21 +389,35 @@ async function fetchFarcasterData(
     }
   }
 
+  const message_details = messagesWithWen.map((msg) => ({
+    senderUsername: msg.senderUsername,
+    text: msg.text,
+    wen_matches: msg.wen_matches,
+    timestamp: msg.timestamp,
+  }));
+
   return {
     total_wen_count: totalWenCount,
     total_messages: allMessages.length,
     messages_with_wen: messagesWithWen.length,
     time_analysis: { time_span_formatted: timeSpan },
-    message_details: messagesWithWen.map((msg) => ({
-      senderUsername: msg.senderUsername,
-      text: msg.text,
-      wen_matches: msg.wen_matches,
-      timestamp: msg.timestamp,
-    })),
-    all_messages: allMessages.slice(
-      0,
-      Math.min(Math.ceil(allMessages.length * 0.25), 500)
-    ),
+    message_details: message_details,
+    all_messages: allMessages
+      .slice(
+        0,
+        Math.min(Math.ceil(this.lastData.all_messages.length * 0.5), 500)
+      )
+      .map((msg) => ({
+        senderUsername:
+          msg.senderContext?.username ||
+          msg.senderContext?.displayName ||
+          `User${msg.senderContext?.fid || "Unknown"}`,
+        type: msg.type,
+        message: msg.message,
+        senderFID: msg.senderContext?.fid,
+        serverTimestamp: msg.serverTimestamp,
+        mentions: msg.mentions || [],
+      })),
     debug: {
       firstMessageStructure:
         allMessages.length > 0
