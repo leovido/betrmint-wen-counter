@@ -47,6 +47,9 @@ class WenMonitor {
     this.randomWinnerBtn = document.getElementById("randomWinner");
     this.generateAISummaryBtn = document.getElementById("generateAISummary");
 
+    // Loading overlay
+    this.loadingOverlay = document.getElementById("loadingOverlay");
+
     // AI Summary elements
     this.aiSummaryCard = document.getElementById("aiSummaryCard");
     this.aiSummaryLoading = document.getElementById("aiSummaryLoading");
@@ -186,6 +189,9 @@ class WenMonitor {
       return;
     }
 
+    // Show loading overlay
+    this.loadingOverlay.style.display = "flex";
+
     this.saveConfiguration();
     this.isRunning = true;
     this.startTime = new Date();
@@ -266,8 +272,14 @@ class WenMonitor {
 
       // Clear any previous errors
       this.clearError();
+
+      // Hide loading overlay after successful data fetch
+      this.loadingOverlay.style.display = "none";
     } catch (error) {
       console.error("Error fetching data:", error);
+
+      // Hide loading overlay on any error
+      this.loadingOverlay.style.display = "none";
 
       // If backend is not available, fall back to mock data for demo
       if (
@@ -276,6 +288,8 @@ class WenMonitor {
       ) {
         console.log("Backend not available, using mock data for demo");
         this.useMockData();
+        // Hide loading overlay when falling back to mock data
+        this.loadingOverlay.style.display = "none";
       } else {
         throw error;
       }
