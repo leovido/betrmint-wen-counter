@@ -64,6 +64,7 @@ class WenMonitor {
     this.summaryRecommendations = document.getElementById(
       "summaryRecommendations"
     );
+    this.summaryKeyUsers = document.getElementById("summaryKeyUsers");
 
     // Winner elements
     this.winnerCard = document.getElementById("winnerCard");
@@ -1054,6 +1055,15 @@ class WenMonitor {
     // Update WEN context
     this.summaryWenContext.textContent =
       summary.wen_context || "No WEN context";
+
+    // Update key users list
+    if (summary.key_users && Array.isArray(summary.key_users)) {
+      this.summaryKeyUsers.innerHTML = summary.key_users
+        .map((user) => `<li>${user}</li>`)
+        .join("");
+    } else {
+      this.summaryKeyUsers.innerHTML = "No key users identified";
+    }
 
     // Update action items list
     if (summary.action_items && Array.isArray(summary.action_items)) {
