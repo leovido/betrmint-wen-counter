@@ -60,6 +60,7 @@ class WenMonitor {
     this.summarySentiment = document.getElementById("summarySentiment");
     this.summaryWenContext = document.getElementById("summaryWenContext");
     this.summaryActionItems = document.getElementById("summaryActionItems");
+    this.summaryKeyUsers = document.getElementById("summaryKeyUsers");
     this.summaryKeyInsights = document.getElementById("summaryKeyInsights");
     this.summaryRecommendations = document.getElementById(
       "summaryRecommendations"
@@ -1007,14 +1008,10 @@ class WenMonitor {
           Math.min(Math.ceil(this.lastData.all_messages.length * 0.5), 500)
         )
         .map((msg) => ({
-          username:
-            msg.senderContext?.username ||
-            msg.senderContext?.displayName ||
-            `User${msg.senderContext?.fid || "Unknown"}`,
-          type: msg.type,
-          message: msg.message,
-          serverFID: msg.senderFid,
-          serverTimestamp: msg.serverTimestamp,
+          username: msg.senderUsername || "Unknown",
+          text: msg.text,
+          wen_matches: msg.wen_matches || 0,
+          timestamp: msg.timestamp,
           mentions: msg.mentions || [],
         }));
 
@@ -1068,9 +1065,21 @@ class WenMonitor {
     this.summarySentiment.textContent =
       summary.sentiment || "No sentiment analysis";
 
-    // Update WEN context
-    this.summaryWenContext.textContent =
-      summary.wen_context || "No WEN context";
+    // Update WEN context with count
+    let wenContextText = summary.wen_context || "No WEN context";
+    if (summary.wen_count) {
+      wenContextText = `[${summary.wen_count} WEN mentions] ${wenContextText}`;
+    }
+    this.summaryWenContext.textContent = wenContextText;
+
+    // Update key users list
+    if (summary.key_users && Array.isArray(summary.key_users)) {
+      this.summaryKeyUsers.innerHTML = summary.key_users
+        .map((user) => `<li>${user}</li>`)
+        .join("");
+    } else {
+      this.summaryKeyUsers.innerHTML = "No key users identified";
+    }
 
     // Update action items list
     if (summary.action_items && Array.isArray(summary.action_items)) {

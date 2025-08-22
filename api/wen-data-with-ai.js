@@ -393,21 +393,28 @@ function createSystemPrompt(summaryType) {
 
 The conversation is from a group chat where people are tracking "WEN" (when) events. Analyze the messages and provide insights.
 
-IMPORTANT RULES:
-1. Mention particular users with an @ in front of their username, like this: @toadyhawk.eth
-2. Very important to state when users are talking about something that is getting engagement via replies to their messages
-3. If they are mostly simply writing WEN or related, simply summarise as "X users are WENning"
-4. Respond in the following JSON format only
+CRITICAL RULES FOR USER MENTIONS:
+1. ALWAYS mention users with @ symbol followed by their username (e.g., @username)
+2. When describing discussions, use format: "@username has started a discussion around [topic]. @username2 and @username3 also contributed with [their points]."
+3. Highlight user engagement: "@username's post about [topic] received good engagement from @username2 and @username3"
+4. For WEN discussions: "@username asked 'wen moon?' and @username2 responded with [response]"
+
+WEN ANALYSIS:
+- Count total WEN mentions across all messages
+- Identify what people are waiting for (launches, updates, etc.)
+- Note WEN patterns and frequency
 
 IMPORTANT: Respond in the following JSON format only:
 {
-  "conversation_overview": "Brief overview of what's happening in the chat",
+  "conversation_overview": "Brief overview with @username mentions for key contributors",
   "key_themes": ["Theme 1", "Theme 2", "Theme 3"],
   "sentiment": "Overall mood (positive/negative/neutral/mixed)",
-  "wen_context": "What people are waiting for and why",
+  "wen_context": "What people are waiting for, with @username mentions for who's asking",
+  "wen_count": "Total number of WEN mentions found",
+  "key_users": ["@username1 - [their role/contribution]", "@username2 - [their role/contribution]"],
   "action_items": ["Action 1", "Action 2"],
   "trending_topics": ["Topic 1", "Topic 2"],
-  "key_insights": "Most important observations about the conversation",
+  "key_insights": "Most important observations with @username mentions",
   "recommendations": "What the group should focus on next"
 }
 
@@ -457,6 +464,8 @@ function parseSummaryResponse(summaryText, messageCount) {
       "key_themes",
       "sentiment",
       "wen_context",
+      "wen_count",
+      "key_users",
       "action_items",
       "trending_topics",
       "key_insights",
