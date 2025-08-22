@@ -295,22 +295,8 @@ async function fetchFarcasterData(
         result = result && messageTime <= endTime;
       }
 
-      // Debug: Log a few timestamp comparisons
-      if (Math.random() < 0.05) {
-        const timeRange = endTime
-          ? `${targetTime.toISOString()} to ${endTime.toISOString()}`
-          : targetTime.toISOString();
-        console.log(
-          `Python timestamp comparison: messageTime=${messageTime.toISOString()}, timeRange=${timeRange}, result=${result}`
-        );
-      }
-
       return result;
     });
-
-    console.log(
-      `After Python-style filtering: ${filteredMessages.length} messages remain`
-    );
   }
 
   // Now process the filtered messages for WEN patterns - EXACT Python logic from wen_counter.py
@@ -402,7 +388,7 @@ async function fetchFarcasterData(
     messages_with_wen: messagesWithWen.length,
     time_analysis: { time_span_formatted: timeSpan },
     message_details: message_details,
-    all_messages: allMessages
+    all_messages: filteredMessages
       .slice(0, Math.min(Math.ceil(allMessages.length * 0.5), 500))
       .map((msg) => ({
         senderUsername:
@@ -410,9 +396,10 @@ async function fetchFarcasterData(
           msg.senderContext?.displayName ||
           `User${msg.senderContext?.fid || "Unknown"}`,
         type: msg.type,
+        wen_matches: msg.wen_matches || 0,
         message: msg.message,
         senderFID: msg.senderContext?.fid,
-        serverTimestamp: msg.serverTimestamp,
+        serverTimestamp: msg.timestamp,
         mentions: msg.mentions || [],
       })),
     debug: {
