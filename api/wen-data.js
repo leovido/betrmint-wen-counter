@@ -403,10 +403,7 @@ async function fetchFarcasterData(
     time_analysis: { time_span_formatted: timeSpan },
     message_details: message_details,
     all_messages: allMessages
-      .slice(
-        0,
-        Math.min(Math.ceil(this.lastData.all_messages.length * 0.5), 500)
-      )
+      .slice(0, Math.min(Math.ceil(allMessages.length * 0.5), 500))
       .map((msg) => ({
         senderUsername:
           msg.senderContext?.username ||

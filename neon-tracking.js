@@ -1001,13 +1001,11 @@ class WenMonitor {
     this.aiSummaryError.style.display = "none";
 
     try {
-      this.formatted_all_messages = this.lastData.all_messages;
-
       const response = await fetch(`${this.backendUrl}/api/ai-summarizer`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: this.formatted_all_messages,
+          messages: this.lastData.all_messages,
           apiKey: this.openaiApiKeyEl.value,
           summaryType: "comprehensive",
         }),
