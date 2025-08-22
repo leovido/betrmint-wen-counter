@@ -19,6 +19,7 @@ class WenMonitor {
     this.messagesWithWenEl = document.getElementById("messagesWithWen");
     this.messageTimespanEl = document.getElementById("messageTimespan");
 
+    this.formatted_all_messages = [];
     // Status elements
     this.fetchModeEl = document.getElementById("fetchMode");
     this.filterStatusEl = document.getElementById("filterStatus");
@@ -30,6 +31,7 @@ class WenMonitor {
     // Configuration elements
     this.apiUrlEl = document.getElementById("apiUrl");
     this.apiTokenEl = document.getElementById("apiToken");
+    this.openaiApiKeyEl = document.getElementById("openaiApiKey");
     this.fetchModeSelectEl = document.getElementById("fetchModeSelect");
     this.maxPagesEl = document.getElementById("maxPages");
     this.targetHoursEl = document.getElementById("targetHours");
@@ -43,6 +45,29 @@ class WenMonitor {
     this.stopBtn = document.getElementById("stopMonitor");
     this.testBtn = document.getElementById("testConnection");
     this.randomWinnerBtn = document.getElementById("randomWinner");
+    this.generateAISummaryBtn = document.getElementById("generateAISummary");
+
+    // Loading overlay
+    this.loadingOverlay = document.getElementById("loadingOverlay");
+
+    // AI Summary elements
+    this.aiSummaryCard = document.getElementById("aiSummaryCard");
+    this.aiSummaryLoading = document.getElementById("aiSummaryLoading");
+    this.aiSummaryResult = document.getElementById("aiSummaryResult");
+    this.aiSummaryError = document.getElementById("aiSummaryError");
+    this.aiSummaryErrorDetails = document.getElementById(
+      "aiSummaryErrorDetails"
+    );
+    this.summaryOverview = document.getElementById("summaryOverview");
+    this.summaryThemes = document.getElementById("summaryThemes");
+    this.summarySentiment = document.getElementById("summarySentiment");
+    this.summaryWenContext = document.getElementById("summaryWenContext");
+    this.summaryActionItems = document.getElementById("summaryActionItems");
+    this.summaryKeyInsights = document.getElementById("summaryKeyInsights");
+    this.summaryRecommendations = document.getElementById(
+      "summaryRecommendations"
+    );
+    this.summaryKeyUsers = document.getElementById("summaryKeyUsers");
 
     // Winner elements
     this.winnerCard = document.getElementById("winnerCard");
@@ -66,6 +91,7 @@ class WenMonitor {
 
     this.apiUrlEl.value = config.apiUrl || "";
     this.apiTokenEl.value = config.apiToken || "";
+    this.openaiApiKeyEl.value = config.openaiApiKey || "";
     this.fetchModeSelectEl.value = config.fetchMode || "recent";
     this.maxPagesEl.value = config.maxPages || 5;
     this.targetHoursEl.value = config.targetHours || 24;
@@ -83,6 +109,7 @@ class WenMonitor {
     const config = {
       apiUrl: this.apiUrlEl.value,
       apiToken: this.apiTokenEl.value,
+      openaiApiKey: this.openaiApiKeyEl.value,
       fetchMode: this.fetchModeSelectEl.value,
       maxPages: parseInt(this.maxPagesEl.value),
       targetHours: parseInt(this.targetHoursEl.value),
@@ -106,11 +133,15 @@ class WenMonitor {
       this.selectRandomWinner()
     );
     this.spinWheelBtn.addEventListener("click", () => this.spinWheel());
+    this.generateAISummaryBtn.addEventListener("click", () =>
+      this.generateAISummary()
+    );
 
     // Save config on input changes
     [
       this.apiUrlEl,
       this.apiTokenEl,
+      this.openaiApiKeyEl,
       this.fetchModeSelectEl,
       this.maxPagesEl,
       this.targetHoursEl,
@@ -157,6 +188,9 @@ class WenMonitor {
       alert("Please enter both API URL and Token");
       return;
     }
+
+    // Show loading overlay
+    this.loadingOverlay.style.display = "flex";
 
     this.saveConfiguration();
     this.isRunning = true;
@@ -238,8 +272,14 @@ class WenMonitor {
 
       // Clear any previous errors
       this.clearError();
+
+      // Hide loading overlay after successful data fetch
+      this.loadingOverlay.style.display = "none";
     } catch (error) {
       console.error("Error fetching data:", error);
+
+      // Hide loading overlay on any error
+      this.loadingOverlay.style.display = "none";
 
       // If backend is not available, fall back to mock data for demo
       if (
@@ -248,6 +288,8 @@ class WenMonitor {
       ) {
         console.log("Backend not available, using mock data for demo");
         this.useMockData();
+        // Hide loading overlay when falling back to mock data
+        this.loadingOverlay.style.display = "none";
       } else {
         throw error;
       }
@@ -508,9 +550,9 @@ class WenMonitor {
               <div class="handle">@${msg.senderUsername}</div>
               <div class="timestamp">${timestamp}</div>
             </div>
-            <div class="content">${msg.wen_matches.join(", ")} — "${
-          msg.text
-        }"</div>
+            <div class="content">${msg.wen_matches} WEN match${
+          msg.wen_matches !== 1 ? "es" : ""
+        } — "${msg.text}"</div>
           </div>
         `;
       })
@@ -830,9 +872,9 @@ class WenMonitor {
         <div class="winner-handle">@${winner.senderUsername}</div>
         <div class="winner-timestamp">${timestamp}</div>
       </div>
-      <div class="winner-content">${winner.wen_matches.join(", ")} — "${
-      winner.text
-    }"</div>
+      <div class="winner-content">${winner.wen_matches} WEN match${
+      winner.wen_matches !== 1 ? "es" : ""
+    } — "${winner.text}"</div>
     `;
 
     // Add celebration effect
@@ -945,6 +987,122 @@ class WenMonitor {
       this.testWenPatternsBtn.disabled = false;
       this.testWenPatternsBtn.textContent = "🧪 Test WEN Patterns";
     }
+  }
+
+  async generateAISummary() {
+    if (!this.openaiApiKeyEl.value) {
+      alert("Please enter your OpenAI API key to generate AI summaries");
+      return;
+    }
+
+    if (
+      !this.lastData ||
+      !this.lastData.all_messages ||
+      this.lastData.all_messages.length === 0
+    ) {
+      alert(
+        "No messages available to summarize. Please start monitoring first."
+      );
+      return;
+    }
+
+    this.generateAISummaryBtn.disabled = true;
+    this.generateAISummaryBtn.textContent = "🤖 Generating...";
+
+    // Show AI summary card and loading state
+    this.aiSummaryCard.style.display = "block";
+    this.aiSummaryLoading.style.display = "block";
+    this.aiSummaryResult.style.display = "none";
+    this.aiSummaryError.style.display = "none";
+
+    try {
+      const response = await fetch(`${this.backendUrl}/api/ai-summarizer`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: this.lastData.all_messages,
+          apiKey: this.openaiApiKeyEl.value,
+          summaryType: "comprehensive",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Display the AI summary
+        this.displayAISummary(result.summary);
+      } else {
+        throw new Error(result.error || "Failed to generate summary");
+      }
+    } catch (error) {
+      console.error("AI Summary generation failed:", error);
+      this.displayAIError(error.message);
+    } finally {
+      this.generateAISummaryBtn.disabled = false;
+      this.generateAISummaryBtn.textContent = "🤖 Generate AI Summary";
+      this.aiSummaryLoading.style.display = "none";
+    }
+  }
+
+  displayAISummary(summary) {
+    // Update summary content
+    this.summaryOverview.textContent =
+      summary.conversation_overview || "No overview available";
+
+    // Update themes list
+    if (summary.key_themes && Array.isArray(summary.key_themes)) {
+      this.summaryThemes.innerHTML = summary.key_themes
+        .map((theme) => `<li>${theme}</li>`)
+        .join("");
+    } else {
+      this.summaryThemes.innerHTML = "No themes identified";
+    }
+
+    // Update sentiment
+    this.summarySentiment.textContent =
+      summary.sentiment || "No sentiment analysis";
+
+    // Update WEN context
+    this.summaryWenContext.textContent =
+      summary.wen_context || "No WEN context";
+
+    // Update key users list
+    if (summary.key_users && Array.isArray(summary.key_users)) {
+      this.summaryKeyUsers.innerHTML = summary.key_users
+        .map((user) => `<li>${user}</li>`)
+        .join("");
+    } else {
+      this.summaryKeyUsers.innerHTML = "No key users identified";
+    }
+
+    // Update action items list
+    if (summary.action_items && Array.isArray(summary.action_items)) {
+      this.summaryActionItems.innerHTML = summary.action_items
+        .map((item) => `<li>${item}</li>`)
+        .join("");
+    } else {
+      this.summaryActionItems.innerHTML = "No action items";
+    }
+
+    // Update key insights
+    this.summaryKeyInsights.textContent =
+      summary.key_insights || "No insights available";
+
+    // Update recommendations
+    this.summaryRecommendations.textContent =
+      summary.recommendations || "No recommendations";
+
+    // Show results
+    this.aiSummaryResult.style.display = "block";
+  }
+
+  displayAIError(errorMessage) {
+    this.aiSummaryErrorDetails.textContent = errorMessage;
+    this.aiSummaryError.style.display = "block";
   }
 }
 

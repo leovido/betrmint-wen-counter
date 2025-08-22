@@ -295,22 +295,8 @@ async function fetchFarcasterData(
         result = result && messageTime <= endTime;
       }
 
-      // Debug: Log a few timestamp comparisons
-      if (Math.random() < 0.05) {
-        const timeRange = endTime
-          ? `${targetTime.toISOString()} to ${endTime.toISOString()}`
-          : targetTime.toISOString();
-        console.log(
-          `Python timestamp comparison: messageTime=${messageTime.toISOString()}, timeRange=${timeRange}, result=${result}`
-        );
-      }
-
       return result;
     });
-
-    console.log(
-      `After Python-style filtering: ${filteredMessages.length} messages remain`
-    );
   }
 
   // Now process the filtered messages for WEN patterns - EXACT Python logic from wen_counter.py
@@ -389,17 +375,33 @@ async function fetchFarcasterData(
     }
   }
 
+  const message_details = messagesWithWen.map((msg) => ({
+    senderUsername: msg.senderUsername,
+    text: msg.text,
+    wen_matches: msg.wen_matches,
+    timestamp: msg.timestamp,
+  }));
+
   return {
     total_wen_count: totalWenCount,
     total_messages: allMessages.length,
     messages_with_wen: messagesWithWen.length,
     time_analysis: { time_span_formatted: timeSpan },
-    message_details: messagesWithWen.map((msg) => ({
-      senderUsername: msg.senderUsername,
-      text: msg.text,
-      wen_matches: msg.wen_matches,
-      timestamp: msg.timestamp,
-    })),
+    message_details: message_details,
+    all_messages: filteredMessages
+      .slice(0, Math.min(Math.ceil(allMessages.length * 0.5), 500))
+      .map((msg) => ({
+        senderUsername:
+          msg.senderContext?.username ||
+          msg.senderContext?.displayName ||
+          `User${msg.senderContext?.fid || "Unknown"}`,
+        type: msg.type,
+        wen_matches: msg.wen_matches || 0,
+        message: msg.message,
+        senderFID: msg.senderContext?.fid,
+        serverTimestamp: msg.timestamp,
+        mentions: msg.mentions || [],
+      })),
     debug: {
       firstMessageStructure:
         allMessages.length > 0

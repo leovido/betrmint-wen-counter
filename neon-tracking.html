@@ -141,6 +141,64 @@
         </div>
       </div>
 
+      <!-- AI Summary Section -->
+      <!-- Loading Overlay -->
+      <div class="loading-overlay" id="loadingOverlay" style="display: none">
+        <div class="loading-content">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Starting Monitor...</div>
+          <div class="loading-subtext">Fetching Farcaster data...</div>
+        </div>
+      </div>
+
+      <div class="card ai-summary-card" style="margin-top: 18px; display: none" id="aiSummaryCard">
+        <div class="section-title">🤖 AI Summary</div>
+        <div class="ai-summary-content">
+          <div class="ai-summary-loading" id="aiSummaryLoading" style="display: none">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Generating AI summary...</div>
+          </div>
+          <div class="ai-summary-result" id="aiSummaryResult" style="display: none">
+            <div class="summary-section">
+              <h4>📋 Conversation Overview</h4>
+              <p id="summaryOverview">No summary generated yet</p>
+            </div>
+            <div class="summary-section">
+              <h4>🎯 Key Themes</h4>
+              <ul id="summaryThemes">No themes identified</ul>
+            </div>
+            <div class="summary-section">
+              <h4>😊 Sentiment</h4>
+              <p id="summarySentiment">No sentiment analysis</p>
+            </div>
+            <div class="summary-section">
+              <h4>⏰ WEN Context</h4>
+              <p id="summaryWenContext">No WEN context</p>
+            </div>
+            <div class="summary-section">
+              <h4>✅ Action Items</h4>
+              <ul id="summaryActionItems">No action items</ul>
+            </div>
+            <div class="summary-section">
+              <h4>👥 Key Users</h4>
+              <ul id="summaryKeyUsers">No key users identified</ul>
+            </div>
+            <div class="summary-section">
+              <h4>💡 Key Insights</h4>
+              <p id="summaryKeyInsights">No insights available</p>
+            </div>
+            <div class="summary-section">
+              <h4>🚀 Recommendations</h4>
+              <p id="summaryRecommendations">No recommendations</p>
+            </div>
+          </div>
+          <div class="ai-summary-error" id="aiSummaryError" style="display: none">
+            <div class="error-message">Failed to generate AI summary</div>
+            <div class="error-details" id="aiSummaryErrorDetails"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- Configuration Panel -->
       <div class="config-panel">
         <div class="section-title">Configuration</div>
@@ -162,6 +220,16 @@
               class="config-input"
               placeholder="Enter your API token"
             />
+          </div>
+          <div class="config-row">
+            <label for="openaiApiKey">OpenAI API Key:</label>
+            <input
+              type="password"
+              id="openaiApiKey"
+              class="config-input"
+              placeholder="Enter your OpenAI API key (sk-...)"
+            />
+            <span class="checkbox-label">Required for AI summary generation</span>
           </div>
           <div class="config-row">
             <label for="fetchMode">Fetch Mode:</label>
@@ -235,6 +303,9 @@
           </button>
           <button id="randomWinner" class="btn btn-winner">
             🎲 Random Winner
+          </button>
+          <button id="generateAISummary" class="btn btn-ai">
+            🤖 Generate AI Summary
           </button>
         </div>
       </div>

@@ -1,0 +1,29 @@
+{
+  "name": "betrmint-wen-ai",
+  "version": "1.0.0",
+  "description": "WEN tracking with AI summarization",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node local-dev-server.js",
+    "start": "node local-dev-server.js",
+    "prod-sim": "NODE_ENV=production-sim node run-production-sim.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "wen",
+    "ai",
+    "summarizer",
+    "farcaster"
+  ],
+  "author": "",
+  "license": "MIT"
+}
