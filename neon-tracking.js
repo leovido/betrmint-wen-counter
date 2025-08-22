@@ -1008,7 +1008,7 @@ class WenMonitor {
           Math.min(Math.ceil(this.lastData.all_messages.length * 0.5), 500)
         )
         .map((msg) => ({
-          username: msg.senderUsername || "Unknown",
+          username: msg.senderContext.username || "Unknown",
           text: msg.text,
           wen_matches: msg.wen_matches || 0,
           timestamp: msg.timestamp,
