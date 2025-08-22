@@ -1000,8 +1000,11 @@ class WenMonitor {
     this.aiSummaryResult.style.display = "none";
     this.aiSummaryError.style.display = "none";
 
-    this.formatted_all_messages = this.lastData.allMessages
-      .slice(0, Math.min(Math.ceil(allMessages.length * 0.5), 500))
+    this.formatted_all_messages = this.lastData.all_messages
+      .slice(
+        0,
+        Math.min(Math.ceil(this.lastData.all_messages.length * 0.5), 500)
+      )
       .map((msg) => ({
         username:
           msg.senderContext?.username ||
