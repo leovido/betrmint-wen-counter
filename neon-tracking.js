@@ -999,8 +999,8 @@ class WenMonitor {
     this.aiSummaryResult.style.display = "none";
     this.aiSummaryError.style.display = "none";
 
-    this.lastData.all_messages = this.lastData.allMessages
-      .slice(0, Math.min(Math.ceil(allMessages.length * 0.25), 500))
+    this.formatted_all_messages = this.lastData.allMessages
+      .slice(0, Math.min(Math.ceil(allMessages.length * 0.5), 500))
       .map((msg) => ({
         username:
           msg.senderContext?.username ||
@@ -1018,7 +1018,7 @@ class WenMonitor {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: this.lastData.all_messages,
+          messages: this.formatted_all_messages,
           apiKey: this.openaiApiKeyEl.value,
           summaryType: "comprehensive",
         }),
