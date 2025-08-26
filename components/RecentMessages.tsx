@@ -1,4 +1,4 @@
-import { WenMessage } from "@/types/wen";
+import type { WenMessage } from "@/types/wen";
 
 interface RecentMessagesProps {
   messages: WenMessage[];

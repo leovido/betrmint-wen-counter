@@ -1,4 +1,4 @@
-import { MonitorConfig } from "@/types/wen";
+import type { MonitorConfig } from "@/types/wen";
 
 interface ConfigurationPanelProps {
   config: MonitorConfig;

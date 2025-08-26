@@ -9,7 +9,7 @@ import RecentMessages from "./RecentMessages";
 import AISummary from "./AISummary";
 import ConfigurationPanel from "./ConfigurationPanel";
 import LoadingOverlay from "./LoadingOverlay";
-import { WenMessage, MonitorConfig, WheelSegment } from "@/types/wen";
+import type { WenMessage, MonitorConfig, WheelSegment } from "@/types/wen";
 
 export default function WenMonitor() {
   // State for monitor data
