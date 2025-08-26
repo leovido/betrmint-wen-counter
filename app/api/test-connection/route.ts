@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { MonitorConfig, TestConnectionResponse } from "@/types/wen";
+import type { MonitorConfig } from "@/types/wen";
 
 export async function POST(request: NextRequest) {
   try {

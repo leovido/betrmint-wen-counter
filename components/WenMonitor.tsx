@@ -49,7 +49,7 @@ export default function WenMonitor() {
   // State for winner and wheel
   const [winner, setWinner] = useState<WenMessage | null>(null);
   const [wheelSegments, setWheelSegments] = useState<WheelSegment[]>([]);
-  const [isWheelSpinning, setIsWheelSpinning] = useState(false);
+  const [isWheelSpinning] = useState(false);
 
   // State for AI summary
   const [aiSummary, setAiSummary] = useState<string>("");
@@ -272,7 +272,7 @@ export default function WenMonitor() {
   };
 
   // Handle configuration changes
-  const handleConfigChange = (key: keyof MonitorConfig, value: any) => {
+  const handleConfigChange = (key: keyof MonitorConfig, value: unknown) => {
     setConfig((prev) => ({ ...prev, [key]: value }));
   };
 

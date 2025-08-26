@@ -1,18 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { WheelSegment } from "@/types/wen";
+import type { WheelSegment } from "@/types/wen";
 
 interface WheelOfFortuneProps {
   segments: WheelSegment[];
   isSpinning: boolean;
-  onSpin: (winner: any) => void;
+  onSpin: (winner: unknown) => void;
 }
 
 export default function WheelOfFortune({
   segments,
-  isSpinning,
   onSpin,
 }: WheelOfFortuneProps) {
   const [rotation, setRotation] = useState(0);

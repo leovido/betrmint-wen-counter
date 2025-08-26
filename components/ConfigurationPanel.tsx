@@ -2,7 +2,7 @@ import type { MonitorConfig } from "@/types/wen";
 
 interface ConfigurationPanelProps {
   config: MonitorConfig;
-  onConfigChange: (key: keyof MonitorConfig, value: any) => void;
+  onConfigChange: (key: keyof MonitorConfig, value: unknown) => void;
   onStart: () => void;
   onStop: () => void;
   onTest: () => void;

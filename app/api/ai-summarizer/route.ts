@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { WenMessage, AISummaryResponse } from "@/types/wen";
+import type { WenMessage } from "@/types/wen";
 
 export async function POST(request: NextRequest) {
   try {
