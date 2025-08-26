@@ -8,43 +8,111 @@
   </head>
   <body>
     <div class="terminal-frame">
+      <!-- Header - Keep as is -->
       <div class="title">WEN MONITOR – LIVE TRACKING</div>
 
-      <div class="grid">
-        <!-- Left Column: WEN COUNT + SUMMARY -->
+      <!-- WEN Count - Keep as main focus -->
+      <div class="wen-count-section">
+        <div class="wen-count" aria-live="polite">
+          <svg
+            class="wen-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"
+              fill="currentColor"
+              opacity="0.18"
+            />
+            <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" />
+          </svg>
+          <span
+            >WEN COUNT:
+            <span
+              id="wenCount"
+              style="
+                color: var(--pink);
+                text-shadow: 0 0 10px rgba(255, 43, 214, 0.7);
+              "
+              >0</span
+            ></span
+          >
+        </div>
+      </div>
+
+      <!-- Quick Start Section - Essential config at the top -->
+      <div class="card quick-start-card">
+        <div class="section-header">
+          <div class="section-title">🚀 Quick Start</div>
+          <button
+            class="toggle-btn"
+            id="toggleQuickStart"
+            aria-label="Toggle Quick Start"
+          >
+            <span class="toggle-icon">▼</span>
+          </button>
+        </div>
+        <div class="quick-start-content" id="quickStartContent">
+          <div class="config-grid essential-config">
+            <div class="config-row">
+              <label for="apiUrl">API URL:</label>
+              <input
+                type="text"
+                id="apiUrl"
+                class="config-input"
+                placeholder="https://client.farcaster.xyz/v2/..."
+                value="https://client.farcaster.xyz/v2"
+              />
+            </div>
+            <div class="config-row">
+              <label for="apiToken">API Token:</label>
+              <input
+                type="password"
+                id="apiToken"
+                class="config-input"
+                placeholder="Enter your API token"
+              />
+            </div>
+          </div>
+          <div class="button-row primary-actions">
+            <button id="startMonitor" class="btn btn-start">
+              🚀 Start Monitor
+            </button>
+            <button id="stopMonitor" class="btn btn-stop" disabled>
+              ⏹️ Stop Monitor
+            </button>
+            <button id="testConnection" class="btn btn-test">
+              🧪 Test Connection
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons - Prominently placed -->
+      <div class="card action-buttons-card">
+        <div class="section-title">⚡ Quick Actions</div>
+        <div class="button-row secondary-actions">
+          <button id="testWenPatterns" class="btn btn-test">
+            🧪 Test WEN Patterns
+          </button>
+          <button id="randomWinner" class="btn btn-winner">
+            🎲 Random Winner
+          </button>
+          <button id="generateAISummary" class="btn btn-ai">
+            🤖 Generate AI Summary
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Data - Summary and status panels -->
+      <div class="live-data-grid">
+        <!-- Overview Card -->
         <div class="card">
           <div class="section-title">Overview</div>
-          <div class="wen-count" aria-live="polite">
-            <svg
-              class="wen-icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path
-                d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"
-                fill="currentColor"
-                opacity="0.18"
-              />
-              <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" />
-            </svg>
-            <span
-              >WEN COUNT:
-              <span
-                id="wenCount"
-                style="
-                  color: var(--pink);
-                  text-shadow: 0 0 10px rgba(255, 43, 214, 0.7);
-                "
-                >0</span
-              ></span
-            >
-          </div>
-
-          <div class="section-title" style="margin-top: 18px">Summary</div>
           <div class="kpis">
             <div class="kpi">
               <div class="label">Messages analyzed</div>
@@ -61,7 +129,7 @@
           </div>
         </div>
 
-        <!-- Right Column: Monitor Status -->
+        <!-- Monitor Status Card -->
         <div class="card">
           <div class="section-title">Monitor Status</div>
           <div class="status">
@@ -93,8 +161,46 @@
         </div>
       </div>
 
+      <!-- Messages - Recent WEN messages with better filtering -->
+      <div class="card messages-card">
+        <div class="section-header">
+          <div class="section-title">💬 Recent WEN Messages</div>
+          <div class="messages-controls">
+            <button
+              class="toggle-btn"
+              id="toggleMessages"
+              aria-label="Toggle Messages"
+            >
+              <span class="toggle-icon">▼</span>
+            </button>
+            <div class="message-filters">
+              <select id="messageFilter" class="filter-select">
+                <option value="all">All Messages</option>
+                <option value="recent5">Last 5</option>
+                <option value="recent10">Last 10</option>
+                <option value="recent20">Last 20</option>
+              </select>
+              <input
+                type="text"
+                id="messageSearch"
+                class="search-input"
+                placeholder="Search messages..."
+              />
+            </div>
+          </div>
+        </div>
+        <div class="messages-content" id="messagesContent">
+          <div id="recentMessages" class="recent">
+            <div class="msg">
+              <div class="handle">No messages yet</div>
+              <div class="content">Start monitoring to see WEN messages...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Wheel of Fortune -->
-      <div class="card wheel-card" style="margin-top: 18px">
+      <div class="card wheel-card">
         <div class="section-title">🎡 WHEEL OF FORTUNE</div>
         <div class="wheel-container">
           <div class="wheel" id="wheel">
@@ -105,21 +211,14 @@
           </div>
           <div class="wheel-pointer-outer">▼</div>
         </div>
-          <div class="wheel-controls">
-            <button id="spinWheel" class="btn btn-spin">
-              🎲 SPIN THE WHEEL
-            </button>
-            <div class="wheel-status" id="wheelStatus">Ready to spin!</div>
-          </div>
+        <div class="wheel-controls">
+          <button id="spinWheel" class="btn btn-spin">🎲 SPIN THE WHEEL</button>
+          <div class="wheel-status" id="wheelStatus">Ready to spin!</div>
         </div>
       </div>
 
       <!-- Winner Display -->
-      <div
-        class="card winner-card"
-        style="margin-top: 18px; display: none"
-        id="winnerCard"
-      >
+      <div class="card winner-card" style="display: none" id="winnerCard">
         <div class="section-title">🏆 WINNER OF THE DAY</div>
         <div id="winnerMessage" class="winner-message">
           <div class="winner-header">
@@ -130,42 +229,36 @@
         </div>
       </div>
 
-      <!-- Recent Messages -->
-      <div class="card" style="margin-top: 18px">
-        <div class="section-title">Recent WEN Messages</div>
-        <div id="recentMessages" class="recent">
-          <div class="msg">
-            <div class="handle">No messages yet</div>
-            <div class="content">Start monitoring to see WEN messages...</div>
-          </div>
-        </div>
-      </div>
-
       <!-- AI Summary Section -->
-      <!-- Loading Overlay -->
-      <div class="loading-overlay" id="loadingOverlay" style="display: none">
-        <div class="loading-content">
-          <div class="loading-spinner"></div>
-          <div class="loading-text">Starting Monitor...</div>
-          <div class="loading-subtext">Fetching Farcaster data...</div>
-        </div>
-      </div>
-
-      <div class="card ai-summary-card" style="margin-top: 18px; display: none" id="aiSummaryCard">
+      <div
+        class="card ai-summary-card"
+        style="display: none"
+        id="aiSummaryCard"
+      >
         <div class="section-title">🤖 AI Summary</div>
         <div class="ai-summary-content">
-          <div class="ai-summary-loading" id="aiSummaryLoading" style="display: none">
+          <div
+            class="ai-summary-loading"
+            id="aiSummaryLoading"
+            style="display: none"
+          >
             <div class="loading-spinner"></div>
             <div class="loading-text">Generating AI summary...</div>
           </div>
-          <div class="ai-summary-result" id="aiSummaryResult" style="display: none">
+          <div
+            class="ai-summary-result"
+            id="aiSummaryResult"
+            style="display: none"
+          >
             <div class="summary-section">
               <h4>📋 Conversation Overview</h4>
               <p id="summaryOverview">No summary generated yet</p>
             </div>
             <div class="summary-section">
               <h4>🎯 Key Themes</h4>
-              <ul id="summaryThemes">No themes identified</ul>
+              <ul id="summaryThemes">
+                No themes identified
+              </ul>
             </div>
             <div class="summary-section">
               <h4>😊 Sentiment</h4>
@@ -177,11 +270,15 @@
             </div>
             <div class="summary-section">
               <h4>✅ Action Items</h4>
-              <ul id="summaryActionItems">No action items</ul>
+              <ul id="summaryActionItems">
+                No action items
+              </ul>
             </div>
             <div class="summary-section">
               <h4>👥 Key Users</h4>
-              <ul id="summaryKeyUsers">No key users identified</ul>
+              <ul id="summaryKeyUsers">
+                No key users identified
+              </ul>
             </div>
             <div class="summary-section">
               <h4>💡 Key Insights</h4>
@@ -192,121 +289,117 @@
               <p id="summaryRecommendations">No recommendations</p>
             </div>
           </div>
-          <div class="ai-summary-error" id="aiSummaryError" style="display: none">
+          <div
+            class="ai-summary-error"
+            id="aiSummaryError"
+            style="display: none"
+          >
             <div class="error-message">Failed to generate AI summary</div>
             <div class="error-details" id="aiSummaryErrorDetails"></div>
           </div>
         </div>
       </div>
 
-      <!-- Configuration Panel -->
-      <div class="config-panel">
-        <div class="section-title">Configuration</div>
-        <div class="config-grid">
-          <div class="config-row">
-            <label for="apiUrl">API URL:</label>
-            <input
-              type="text"
-              id="apiUrl"
-              class="config-input"
-              placeholder="https://client.farcaster.xyz/v2/..."
-            />
-          </div>
-          <div class="config-row">
-            <label for="apiToken">API Token:</label>
-            <input
-              type="password"
-              id="apiToken"
-              class="config-input"
-              placeholder="Enter your API token"
-            />
-          </div>
-          <div class="config-row">
-            <label for="openaiApiKey">OpenAI API Key:</label>
-            <input
-              type="password"
-              id="openaiApiKey"
-              class="config-input"
-              placeholder="Enter your OpenAI API key (sk-...)"
-            />
-            <span class="checkbox-label">Required for AI summary generation</span>
-          </div>
-          <div class="config-row">
-            <label for="fetchMode">Fetch Mode:</label>
-            <select id="fetchModeSelect" class="config-input">
-              <option value="single">Single</option>
-              <option value="recent">Recent</option>
-              <option value="all">All</option>
-            </select>
-          </div>
-          <div class="config-row">
-            <label for="maxPages">Max Pages:</label>
-            <input
-              type="number"
-              id="maxPages"
-              class="config-input"
-              value="5"
-              min="1"
-              max="100"
-            />
-          </div>
-          <div class="config-row">
-            <label for="targetHours">Target Hours:</label>
-            <input
-              type="number"
-              id="targetHours"
-              class="config-input"
-              value="24"
-              min="1"
-              max="168"
-            />
-          </div>
-          <div class="config-row">
-            <label for="todayOnly">Today Only:</label>
-            <input type="checkbox" id="todayOnly" class="config-checkbox" />
-            <span class="checkbox-label"
-              >Show only messages from today (00:00 UTC to now)</span
-            >
-          </div>
-          <div class="config-row">
-            <label for="datePicker">Select Date:</label>
-            <div class="date-filter-container">
-              <input type="date" id="datePicker" class="config-input date-input" />
-              <button id="clearDate" class="btn btn-clear">Clear</button>
+      <!-- Advanced Configuration - Collapsible section -->
+      <div class="card advanced-config-card">
+        <div class="section-header">
+          <div class="section-title">⚙️ Advanced Configuration</div>
+          <button
+            class="toggle-btn"
+            id="toggleAdvancedConfig"
+            aria-label="Toggle Advanced Config"
+          >
+            <span class="toggle-icon">▶</span>
+          </button>
+        </div>
+        <div
+          class="advanced-config-content"
+          id="advancedConfigContent"
+          style="display: none"
+        >
+          <div class="config-grid">
+            <div class="config-row">
+              <label for="openaiApiKey">OpenAI API Key:</label>
+              <input
+                type="password"
+                id="openaiApiKey"
+                class="config-input"
+                placeholder="Enter your OpenAI API key (sk-...)"
+              />
+              <span class="help-text">Required for AI summary generation</span>
             </div>
-            <span class="checkbox-label">Show only messages from selected date</span>
-          </div>
-          <div class="config-row">
-            <label for="updateInterval">Update Interval (seconds):</label>
-            <input
-              type="number"
-              id="updateIntervalInput"
-              class="config-input"
-              value="300"
-              min="30"
-              max="3600"
-            />
+            <div class="config-row">
+              <label for="fetchMode">Fetch Mode:</label>
+              <select id="fetchModeSelect" class="config-input">
+                <option value="single">Single</option>
+                <option value="recent">Recent</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+            <div class="config-row">
+              <label for="maxPages">Max Pages:</label>
+              <input
+                type="number"
+                id="maxPages"
+                class="config-input"
+                value="5"
+                min="1"
+                max="100"
+              />
+            </div>
+            <div class="config-row">
+              <label for="targetHours">Target Hours:</label>
+              <input
+                type="number"
+                id="targetHours"
+                class="config-input"
+                value="24"
+                min="1"
+                max="168"
+              />
+            </div>
+            <div class="config-row">
+              <label for="todayOnly">Today Only:</label>
+              <input type="checkbox" id="todayOnly" class="config-checkbox" />
+              <span class="checkbox-label"
+                >Show only messages from today (00:00 UTC to now)</span
+              >
+            </div>
+            <div class="config-row">
+              <label for="datePicker">Select Date:</label>
+              <div class="date-filter-container">
+                <input
+                  type="date"
+                  id="datePicker"
+                  class="config-input date-input"
+                />
+                <button id="clearDate" class="btn btn-clear">Clear</button>
+              </div>
+              <span class="help-text"
+                >Show only messages from selected date</span
+              >
+            </div>
+            <div class="config-row">
+              <label for="updateInterval">Update Interval (seconds):</label>
+              <input
+                type="number"
+                id="updateIntervalInput"
+                class="config-input"
+                value="300"
+                min="30"
+                max="3600"
+              />
+            </div>
           </div>
         </div>
-        <div class="button-row">
-          <button id="startMonitor" class="btn btn-start">
-            🚀 Start Monitor
-          </button>
-          <button id="stopMonitor" class="btn btn-stop" disabled>
-            ⏹️ Stop Monitor
-          </button>
-          <button id="testConnection" class="btn btn-test">
-            🧪 Test Connection
-          </button>
-          <button id="testWenPatterns" class="btn btn-test">
-            🧪 Test WEN Patterns
-          </button>
-          <button id="randomWinner" class="btn btn-winner">
-            🎲 Random Winner
-          </button>
-          <button id="generateAISummary" class="btn btn-ai">
-            🤖 Generate AI Summary
-          </button>
+      </div>
+
+      <!-- Loading Overlay -->
+      <div class="loading-overlay" id="loadingOverlay" style="display: none">
+        <div class="loading-content">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Starting Monitor...</div>
+          <div class="loading-subtext">Fetching Farcaster data...</div>
         </div>
       </div>
 
@@ -321,7 +414,7 @@
 
     <!-- Confetti Container -->
     <div id="confetti-container" class="confetti-container"></div>
-    
+
     <script src="neon-tracking.js"></script>
   </body>
 </html>

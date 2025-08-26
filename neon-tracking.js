@@ -6,6 +6,7 @@ class WenMonitor {
     this.updateCount = 0;
     this.lastData = null;
     this.backendUrl = window.location.origin; // Use current domain (Vercel)
+    this.currentWinner = null; // Track current winner for message highlighting
 
     this.initializeElements();
     this.loadConfiguration();
@@ -83,6 +84,22 @@ class WenMonitor {
 
     // Messages container
     this.recentMessagesEl = document.getElementById("recentMessages");
+
+    // Collapsible section elements
+    this.toggleQuickStartBtn = document.getElementById("toggleQuickStart");
+    this.quickStartContent = document.getElementById("quickStartContent");
+    this.toggleMessagesBtn = document.getElementById("toggleMessages");
+    this.messagesContent = document.getElementById("messagesContent");
+    this.toggleAdvancedConfigBtn = document.getElementById(
+      "toggleAdvancedConfig"
+    );
+    this.advancedConfigContent = document.getElementById(
+      "advancedConfigContent"
+    );
+
+    // Message filtering elements
+    this.messageFilter = document.getElementById("messageFilter");
+    this.messageSearch = document.getElementById("messageSearch");
   }
 
   loadConfiguration() {
@@ -136,6 +153,24 @@ class WenMonitor {
     this.generateAISummaryBtn.addEventListener("click", () =>
       this.generateAISummary()
     );
+
+    // Collapsible section event listeners
+    this.toggleQuickStartBtn.addEventListener("click", () =>
+      this.toggleSection(this.quickStartContent, this.toggleQuickStartBtn)
+    );
+    this.toggleMessagesBtn.addEventListener("click", () =>
+      this.toggleSection(this.messagesContent, this.toggleMessagesBtn)
+    );
+    this.toggleAdvancedConfigBtn.addEventListener("click", () =>
+      this.toggleSection(
+        this.advancedConfigContent,
+        this.toggleAdvancedConfigBtn
+      )
+    );
+
+    // Message filtering event listeners
+    this.messageFilter.addEventListener("change", () => this.filterMessages());
+    this.messageSearch.addEventListener("input", () => this.filterMessages());
 
     // Save config on input changes
     [
@@ -476,87 +511,84 @@ class WenMonitor {
       }))
     );
 
-    this.recentMessagesEl.innerHTML = messages
-      .map((msg, index) => {
-        // Format timestamp in DD/MM/YYYY HH:MM UTC format
-        let timestamp;
+    // Format messages and store in formatted_all_messages array
+    this.formatted_all_messages = messages.map((msg, index) => {
+      // Format timestamp in DD/MM/YYYY HH:MM UTC format
+      let timestamp;
 
-        if (msg.timestamp) {
-          // Use the actual message timestamp
-          console.log(
-            `📅 Processing timestamp for @${msg.senderUsername}:`,
-            msg.timestamp
-          );
-          timestamp =
-            new Date(msg.timestamp)
-              .toLocaleString("en-GB", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                timeZone: "UTC",
-                hour12: false,
-              })
-              .replace(",", "") + " UTC";
-        } else if (msg.timestamp_iso || msg.created_at || msg.date) {
-          // Try alternative timestamp field names
-          const altTimestamp = msg.timestamp_iso || msg.created_at || msg.date;
-          console.log(
-            `🔄 Using alt timestamp for @${msg.senderUsername}:`,
-            altTimestamp
-          );
-          timestamp =
-            new Date(altTimestamp)
-              .toLocaleString("en-GB", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                timeZone: "UTC",
-                hour12: false,
-              })
-              .replace(",", "") + " UTC";
-        } else {
-          // Generate a unique timestamp based on message index and current time
-          // This ensures each message has a different timestamp for demo purposes
-          console.log(
-            `⚠️  No timestamp found for @${msg.senderUsername}, generating unique one`
-          );
-          const baseTime = new Date();
-          const offsetMinutes = index * 5; // Each message 5 minutes apart
-          const uniqueTime = new Date(
-            baseTime.getTime() - offsetMinutes * 60000
-          );
+      if (msg.timestamp) {
+        // Use the actual message timestamp
+        console.log(
+          `📅 Processing timestamp for @${msg.senderUsername}:`,
+          msg.timestamp
+        );
+        timestamp =
+          new Date(msg.timestamp)
+            .toLocaleString("en-GB", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZone: "UTC",
+              hour12: false,
+            })
+            .replace(",", "") + " UTC";
+      } else if (msg.timestamp_iso || msg.created_at || msg.date) {
+        // Try alternative timestamp field names
+        const altTimestamp = msg.timestamp_iso || msg.created_at || msg.date;
+        console.log(
+          `🔄 Using alt timestamp for @${msg.senderUsername}:`,
+          altTimestamp
+        );
+        timestamp =
+          new Date(altTimestamp)
+            .toLocaleString("en-GB", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZone: "UTC",
+              hour12: false,
+            })
+            .replace(",", "") + " UTC";
+      } else {
+        // Generate a unique timestamp based on message index and current time
+        // This ensures each message has a different timestamp for demo purposes
+        console.log(
+          `⚠️  No timestamp found for @${msg.senderUsername}, generating unique one`
+        );
+        const baseTime = new Date();
+        const offsetMinutes = index * 5; // Each message 5 minutes apart
+        const uniqueTime = new Date(baseTime.getTime() - offsetMinutes * 60000);
 
-          timestamp =
-            uniqueTime
-              .toLocaleString("en-GB", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                timeZone: "UTC",
-                hour12: false,
-              })
-              .replace(",", "") + " UTC";
-        }
+        timestamp =
+          uniqueTime
+            .toLocaleString("en-GB", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZone: "UTC",
+              hour12: false,
+            })
+            .replace(",", "") + " UTC";
+      }
 
-        return `
-          <div class="msg">
-            <div class="msg-header">
-              <div class="handle">@${msg.senderUsername}</div>
-              <div class="timestamp">${timestamp}</div>
-            </div>
-            <div class="content">${msg.wen_matches} WEN match${
+      return {
+        handle: `@${msg.senderUsername}`,
+        timestamp: timestamp,
+        content: `${msg.wen_matches} WEN match${
           msg.wen_matches !== 1 ? "es" : ""
-        } — "${msg.text}"</div>
-          </div>
-        `;
-      })
-      .join("");
+        } — "${msg.text}"`,
+        originalMessage: msg,
+      };
+    });
+
+    // Use the new displayMessages method to show messages
+    this.displayMessages(this.formatted_all_messages);
   }
 
   updateStatus() {
@@ -842,6 +874,9 @@ class WenMonitor {
   }
 
   displayWinner(winner) {
+    // Set the current winner for message highlighting
+    this.currentWinner = winner;
+
     // Show the winner card
     this.winnerCard.style.display = "block";
 
@@ -885,21 +920,33 @@ class WenMonitor {
 
     // Trigger confetti celebration
     this.createConfetti();
+
+    // Refresh message display to show winner highlighting
+    this.filterMessages();
   }
 
   highlightWinnerInMessages(winnerIndex) {
+    // Since we're now using formatted_all_messages, we need to find the winner by username
+    if (!this.currentWinner) return;
+
     // Remove previous highlights
     const allMessages = this.recentMessagesEl.querySelectorAll(".msg");
     allMessages.forEach((msg) => {
       msg.classList.remove("winner-highlight");
     });
 
+    // Find the winner message by username
+    const winnerUsername = this.currentWinner.senderUsername;
+    const winnerMessage = Array.from(allMessages).find(
+      (msg) => msg.querySelector(".handle").textContent === `@${winnerUsername}`
+    );
+
     // Add highlight to the winner message
-    if (allMessages[winnerIndex]) {
-      allMessages[winnerIndex].classList.add("winner-highlight");
+    if (winnerMessage) {
+      winnerMessage.classList.add("winner-highlight");
 
       // Scroll to the winner message
-      allMessages[winnerIndex].scrollIntoView({
+      winnerMessage.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
@@ -1103,6 +1150,88 @@ class WenMonitor {
   displayAIError(errorMessage) {
     this.aiSummaryErrorDetails.textContent = errorMessage;
     this.aiSummaryError.style.display = "block";
+  }
+
+  // Toggle collapsible sections
+  toggleSection(contentElement, toggleButton) {
+    const isVisible = contentElement.style.display !== "none";
+    const toggleIcon = toggleButton.querySelector(".toggle-icon");
+
+    if (isVisible) {
+      contentElement.style.display = "none";
+      toggleIcon.textContent = "▶";
+      toggleIcon.classList.remove("rotated");
+    } else {
+      contentElement.style.display = "block";
+      toggleIcon.textContent = "▼";
+      toggleIcon.classList.add("rotated");
+    }
+  }
+
+  // Filter and display messages based on user selection
+  filterMessages() {
+    const filterValue = this.messageFilter.value;
+    const searchTerm = this.messageSearch.value.toLowerCase();
+
+    let filteredMessages = [...this.formatted_all_messages];
+
+    // Apply search filter
+    if (searchTerm) {
+      filteredMessages = filteredMessages.filter(
+        (msg) =>
+          msg.handle.toLowerCase().includes(searchTerm) ||
+          msg.content.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    // Apply count filter
+    switch (filterValue) {
+      case "recent5":
+        filteredMessages = filteredMessages.slice(0, 5);
+        break;
+      case "recent10":
+        filteredMessages = filteredMessages.slice(0, 10);
+        break;
+      case "recent20":
+        filteredMessages = filteredMessages.slice(0, 20);
+        break;
+      case "all":
+      default:
+        // Show all messages
+        break;
+    }
+
+    this.displayMessages(filteredMessages);
+  }
+
+  // Enhanced display messages method with filtering support
+  displayMessages(messages) {
+    if (!messages || messages.length === 0) {
+      this.recentMessagesEl.innerHTML = `
+        <div class="msg">
+          <div class="handle">No messages found</div>
+          <div class="content">No messages match the current filters...</div>
+        </div>
+      `;
+      return;
+    }
+
+    this.recentMessagesEl.innerHTML = messages
+      .map((msg) => {
+        const isWinner = msg.handle === this.currentWinner?.handle;
+        const winnerClass = isWinner ? "winner-highlight" : "";
+
+        return `
+          <div class="msg ${winnerClass}">
+            <div class="msg-header">
+              <div class="handle">${msg.handle}</div>
+              <div class="timestamp">${msg.timestamp}</div>
+            </div>
+            <div class="content">${msg.content}</div>
+          </div>
+        `;
+      })
+      .join("");
   }
 }
 
