@@ -10,6 +10,7 @@ import AISummary from "./AISummary";
 import ConfigurationPanel from "./ConfigurationPanel";
 import LoadingOverlay from "./LoadingOverlay";
 import type { WenMessage, MonitorConfig, WheelSegment } from "@/types/wen";
+import sdk from "@farcaster/frame-sdk";
 
 export default function WenMonitor() {
   // State for monitor data
@@ -72,6 +73,10 @@ export default function WenMonitor() {
         console.error("Failed to parse saved config:", error);
       }
     }
+  }, []);
+
+  useEffect(() => {
+    sdk.actions.ready();
   }, []);
 
   // Save configuration to localStorage when it changes
