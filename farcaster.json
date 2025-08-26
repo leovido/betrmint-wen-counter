@@ -1,0 +1,16 @@
+{
+  "name": "WEN Monitor",
+  "description": "Track WEN mentions across Farcaster with AI-powered insights and a wheel of fortune",
+  "icon": "https://picsum.photos/200/200",
+  "url": "https://your-domain.com",
+  "permissions": ["read"],
+  "features": [
+    "real-time-monitoring",
+    "ai-summarization",
+    "wheel-of-fortune",
+    "winner-selection"
+  ],
+  "version": "1.0.0",
+  "author": "WEN Team",
+  "repository": "https://github.com/your-username/wen-monitor"
+}
